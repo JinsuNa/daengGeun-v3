@@ -67,23 +67,26 @@ function RegisterPage({ onLogin }) {
 
   // 상태 관리
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    profilePicture: "",
-    petName: "",
-    petAge: "",
-    petGender: "남아",
-    petPersonality: "",
-    petBreed: "",
-    location: "",
+    nickname: "",
+    phone: "",
     address: "",
-  })
-
+    location: "",
+    pets: [],
+});
+const [petData, setPetData] = useState({
+  name: "",
+  age: "",
+  gender: "Male",
+  breed: "",
+  personality: "",
+});
   const [validation, setValidation] = useState({
-    username: { isChecking: false, isValid: false, isChecked: false, message: "" },
+    
     email: { isChecking: false, isValid: false, isChecked: false, message: "" },
+    username: { isChecking: false, isValid: false, isChecked: false, message: "" },
     password: { isValid: false, message: "" },
     confirmPassword: { isValid: false, message: "" },
     formIsValid: false,

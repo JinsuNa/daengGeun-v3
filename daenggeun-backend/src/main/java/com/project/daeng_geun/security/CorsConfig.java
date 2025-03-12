@@ -1,5 +1,4 @@
-package com.project.daeng_geun.config;
-
+package com.project.daeng_geun.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
