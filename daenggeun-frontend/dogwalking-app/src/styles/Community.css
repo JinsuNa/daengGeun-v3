@@ -169,6 +169,7 @@
 
 .card-content {
   padding: 1.25rem;
+
 }
 
 .card-description {
@@ -657,7 +658,15 @@
 /* 반응형 스타일 */
 @media (min-width: 640px) {
   .card-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .card-content{
+    height: 180px; /* ✅ 고정된 높이 설정 */
+    overflow: hidden; /* ✅ 내용이 넘칠 경우 숨김 */
+    text-overflow: ellipsis; /* ✅ 너무 긴 내용은 ... 표시 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* ✅ 최대 3줄까지만 표시 */
+    -webkit-box-orient: vertical;
   }
 
   .product-grid {

@@ -1,5 +1,6 @@
 package com.project.daeng_geun.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -7,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "users")
@@ -19,9 +23,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-
     @Column(nullable = false)
     private String password;
 
@@ -29,7 +30,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String name;
+    private String nickname;
 
     private String phone;
 
@@ -37,18 +38,18 @@ public class User {
 
     private String location;
 
-    @Column(length = 500)
-    private String bio;
+    private Long likeCount;
 
-    private String profileImage;
 
-    @Column(nullable = false)
+    @CreatedDate // ✅ 생성 날짜 자동 입력
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate // ✅ 업데이트 날짜 자동 입력
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pet> pets = new ArrayList<>();
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Pet pet;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events = new ArrayList<>();
