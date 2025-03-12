@@ -18,6 +18,7 @@ import ChatPage from "./pages/ChatPage"
 import CalendarPage from "./pages/CalendarPage"
 import ExhibitionPage from "./pages/ExhibitionPage"
 import MyPage from "./pages/MyPage"
+import FindTest from "./pages/FindTest"
 import "./styles/App.css"
 
 function App() {
@@ -127,6 +128,7 @@ function App() {
           <Route path="/register" element={<RegisterPage onLogin={handleLogin} />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/find-friend" element={<FindFriendPage isAuthenticated={isAuthenticated} />} />
+          <Route path="/findTest" element={<FindTest/>} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/community/write" element={<CommunityWritePage isAuthenticated={isAuthenticated} />} />
           <Route path="/market" element={<MarketPage />} />
@@ -136,6 +138,7 @@ function App() {
           <Route path="/calendar" element={<CalendarPage isAuthenticated={isAuthenticated} />} />
           <Route path="/exhibition" element={<ExhibitionPage />} />
           <Route path="/mypage" element={<MyPage isAuthenticated={isAuthenticated} user={user} />} />
+
           {/* 404 페이지 또는 기타 경로에 대한 처리 추가 가능 */}
         </Routes>
       </main>
@@ -146,4 +149,3 @@ function App() {
 }
 
 export default App
-

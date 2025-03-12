@@ -7,9 +7,12 @@
 
 import axios from "axios"
 
-// API 기본 URL 설정 (실제 배포 시 환경에 맞게 변경)
-const API_BASE_URL = 'http://localhost:8080/api';
-// const API_BASE_URL = "/api" // 프록시 설정 시
+
+
+
+// const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL="http://localhost:8080/api"
+
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -300,6 +303,8 @@ export const uploadFile = async (file, type = "image") => {
     throw error.response ? error.response.data : error
   }
 }
+
+
 
 export default api
 

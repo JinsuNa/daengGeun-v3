@@ -29,6 +29,9 @@ public class Match {
     @Column(nullable = false)
     private String status; // PENDING, ACCEPTED, REJECTED
 
+    @Column
+    private Integer selectionCount;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
