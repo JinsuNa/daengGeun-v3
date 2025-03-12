@@ -1,0 +1,156 @@
+=========User=========
+
+private Long id;                  // 사용자의 고유 식별자(PK), 자동 생성됨
+private String username;          // 로그인에 사용되는 사용자 아이디, 중복 불가
+private String password;          // 사용자 비밀번호, 암호화되어 저장됨
+private String email;             // 사용자 이메일, 중복 불가, 비밀번호 찾기 등에 사용
+private String name;              // 사용자 실명
+private String phone;             // 사용자 전화번호, 연락처로 사용
+private String address;           // 사용자 상세 주소
+private String location;          // 사용자 지역(예: 강남구, 서초구), 산책 매칭에 사용
+private String bio;               // 사용자 자기소개, 프로필에 표시
+private String profileImage;      // 사용자 프로필 이미지 URL
+private LocalDateTime createdAt;  // 계정 생성 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 계정 정보 수정 시간, 자동 업데이트됨
+
+// 관계 매핑
+private List<Pet> pets;                      // 사용자가 등록한 반려견 목록
+private List<Event> events;                  // 사용자가 등록한 일정 목록
+private List<Todo> todos;                    // 사용자의 할 일 목록
+private List<Post> posts;                    // 사용자가 작성한 게시글 목록
+private List<Comment> comments;              // 사용자가 작성한 댓글 목록
+private List<Product> products;              // 사용자가 판매 중인 상품 목록
+private List<Match> requestedMatches;        // 사용자가 요청한 매칭 목록
+private List<Match> receivedMatches;         // 사용자가 받은 매칭 요청 목록
+private List<Message> sentMessages;          // 사용자가 보낸 메시지 목록
+private List<Message> receivedMessages;      // 사용자가 받은 메시지 목록
+private List<Notification> notifications;    // 사용자가 받은 알림 목록
+
+=========Pet=========
+private Long id;                  // 반려견 고유 식별자(PK), 자동 생성됨
+private User user;                // 반려견 주인(User 엔티티 참조)
+private String name;              // 반려견 이름
+private String breed;             // 반려견 품종(예: 포메라니안, 말티즈)
+private Integer age;              // 반려견 나이
+private String gender;            // 반려견 성별(예: 남아, 여아)
+private String personality;       // 반려견 성격 설명(예: 활발함, 온순함)
+private String image;             // 반려견 사진 URL
+private LocalDateTime createdAt;  // 반려견 정보 등록 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 반려견 정보 수정 시간, 자동 업데이트됨
+
+=========Event=========
+private Long id;                  // 일정 고유 식별자(PK), 자동 생성됨
+private User user;                // 일정 등록자(User 엔티티 참조)
+private String title;             // 일정 제목(예: 초코와 산책)
+private LocalDateTime eventDate;  // 일정 날짜 및 시간
+private String time;              // 일정 시간(문자열 형태, 예: "15:00")
+private String location;          // 일정 장소(예: 한강공원)
+private String withWhom;          // 함께하는 사람 또는 반려견(예: 김철수, 몽이)
+private String type;              // 일정 유형(예: 산책, 동물병원)
+private LocalDateTime createdAt;  // 일정 등록 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 일정 수정 시간, 자동 업데이트됨
+
+
+=========Todo=========
+private Long id;                  // 할 일 고유 식별자(PK), 자동 생성됨
+private User user;                // 할 일 등록자(User 엔티티 참조)
+private String text;              // 할 일 내용(예: 강아지 사료 구매하기)
+private boolean completed;        // 완료 여부(true: 완료, false: 미완료)
+private LocalDate date;           // 할 일 날짜
+private LocalDateTime createdAt;  // 할 일 등록 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 할 일 수정 시간, 자동 업데이트됨
+
+=========Post=========
+private Long id;                  // 게시글 고유 식별자(PK), 자동 생성됨
+private User user;                // 게시글 작성자(User 엔티티 참조)
+private String title;             // 게시글 제목
+private String content;           // 게시글 내용, 최대 5000자
+private String category;          // 게시글 카테고리(예: 자유게시판, 소모임, 펫시터)
+private Integer viewCount;        // 조회수, 기본값 0
+private List<Comment> comments;   // 게시글에 달린 댓글 목록
+private Set<Tag> tags;            // 게시글에 사용된 태그 목록
+private LocalDateTime createdAt;  // 게시글 작성 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 게시글 수정 시간, 자동 업데이트됨
+
+=========Comment=========
+private Long id;                  // 댓글 고유 식별자(PK), 자동 생성됨
+private Post post;                // 댓글이 달린 게시글(Post 엔티티 참조)
+private User user;                // 댓글 작성자(User 엔티티 참조)
+private String content;           // 댓글 내용, 최대 1000자
+private LocalDateTime createdAt;  // 댓글 작성 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 댓글 수정 시간, 자동 업데이트됨
+
+=========Tag=========
+private Long id;                  // 태그 고유 식별자(PK), 자동 생성됨
+private String name;              // 태그 이름(예: 소형견, 강남구, 산책모임), 중복 불가
+private Set<Post> posts;          // 이 태그가 사용된 게시글 목록
+
+=========Match=========
+private Long id;                  // 매칭 고유 식별자(PK), 자동 생성됨
+private User requester;           // 매칭을 요청한 사용자(User 엔티티 참조)
+private User receiver;            // 매칭을 받은 사용자(User 엔티티 참조)
+private String status;            // 매칭 상태(PENDING: 대기중, ACCEPTED: 수락됨, REJECTED: 거절됨)
+private LocalDateTime createdAt;  // 매칭 요청 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 매칭 상태 변경 시간, 자동 업데이트됨
+
+=========Message=========
+private Long id;                  // 메시지 고유 식별자(PK), 자동 생성됨
+private User sender;              // 메시지 발신자(User 엔티티 참조)
+private User receiver;            // 메시지 수신자(User 엔티티 참조)
+private String content;           // 메시지 내용, 최대 1000자
+private boolean read;             // 읽음 여부(true: 읽음, false: 안읽음), 기본값 false
+private LocalDateTime createdAt;  // 메시지 전송 시간, 자동 설정됨
+
+=========Product=========
+private Long id;                  // 상품 고유 식별자(PK), 자동 생성됨
+private User seller;              // 판매자(User 엔티티 참조)
+private String title;             // 상품 제목
+private Integer price;            // 상품 가격
+private String description;       // 상품 설명, 최대 2000자
+private String location;          // 판매 지역(예: 서울 강남구)
+private String status;            // 상품 상태(AVAILABLE: 판매중, RESERVED: 예약중, SOLD: 판매완료)
+private List<ProductImage> images;// 상품 이미지 목록
+private LocalDateTime createdAt;  // 상품 등록 시간, 자동 설정됨
+private LocalDateTime updatedAt;  // 상품 정보 수정 시간, 자동 업데이트됨
+
+=========ProductImage=========
+private Long id;                  // 상품 이미지 고유 식별자(PK), 자동 생성됨
+private Product product;          // 연결된 상품(Product 엔티티 참조)
+private String imageUrl;          // 이미지 URL
+
+=========Notification=========
+private Long id;                  // 알림 고유 식별자(PK), 자동 생성됨
+private User user;                // 알림을 받는 사용자(User 엔티티 참조)
+private String type;              // 알림 유형(CHAT: 채팅, COMMENT: 댓글, MATCH: 매칭 등)
+private String message;           // 알림 메시지 내용
+private String link;              // 알림 클릭 시 이동할 링크
+private boolean read;             // 읽음 여부(true: 읽음, false: 안읽음), 기본값 false
+private LocalDateTime createdAt;  // 알림 생성 시간, 자동 설정됨
+
+
+**@Entity**: 이 클래스가 JPA 엔티티임을 나타냅니다. 데이터베이스 테이블과 매핑됩니다.
+**@Table**: 엔티티와 매핑할 테이블을 지정합니다. name 속성으로 테이블 이름을 설정할 수 있습니다.
+**@Id**: 엔티티의 기본 키(Primary Key)를 지정합니다.
+**@GeneratedValue**: 기본 키 생성 전략을 지정합니다. IDENTITY 전략은 데이터베이스의 AUTO_INCREMENT 기능을 사용합니다.
+**@Column**: 엔티티의 필드와 테이블의 컬럼을 매핑합니다.
+
+- nullable = false: NULL 값을 허용하지 않습니다.
+- unique = true: 중복 값을 허용하지 않습니다.
+- length: 문자열 길이를 지정합니다.
+
+
+
+**@ManyToOne**: 다대일 관계를 매핑합니다. 예를 들어, 여러 개의 Pet이 하나의 User에 속할 수 있습니다.
+**@OneToMany**: 일대다 관계를 매핑합니다. 예를 들어, 하나의 User가 여러 개의 Pet을 가질 수 있습니다.
+
+- mappedBy: 양방향 관계에서 주인이 아닌 쪽에서 사용합니다.
+- cascade: 부모 엔티티의 변경이 자식 엔티티에 전파되는 방식을 지정합니다.
+- orphanRemoval: 부모 엔티티와의 연관관계가 끊어진 자식 엔티티를 자동으로 삭제합니다.
+
+
+
+**@ManyToMany**: 다대다 관계를 매핑합니다. 예를 들어, 하나의 Post가 여러 개의 Tag를 가질 수 있고, 하나의 Tag가 여러 개의 Post에 사용될 수 있습니다.
+**@JoinTable**: 다대다 관계에서 연결 테이블을 지정합니다.
+**@JoinColumn**: 외래 키를 매핑할 때 사용합니다.
+**@PrePersist**: 엔티티가 저장되기 전에 실행될 메서드를 지정합니다.
+**@PreUpdate**: 엔티티가 업데이트되기 전에 실행될 메서드를 지정합니다.
