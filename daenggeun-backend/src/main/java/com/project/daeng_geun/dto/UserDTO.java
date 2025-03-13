@@ -1,13 +1,7 @@
 package com.project.daeng_geun.dto;
 
-import com.project.daeng_geun.entity.Pet;
 import com.project.daeng_geun.entity.User;
-import jakarta.persistence.Column;
 import lombok.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -19,28 +13,30 @@ public class UserDTO {
     private Long id;
     private String email;
     private String password;
-    private String nickname;
+    private String username;
     private String phone;
     private String address;
     private String location;
-    private List<PetDTO> pets;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
+    private String petName;
+    private String petBreed;
+    private Integer petAge;
+    private String petGender;
+    private String petPersonality;
+    private String image;
 
     private static UserDTO fromEntity(User user) {
         return UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .nickname(user.getNickname())
-                .phone(user.getPhone())
+                .username(user.getNickname())
                 .address(user.getAddress())
                 .location(user.getLocation())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .pets(user.getPets().stream().map(PetDTO::fromEntity).collect(Collectors.toList()))
+                .petName(user.getPetName())
+                .petBreed(user.getPetBreed())
+                .petAge(user.getPetAge())
+                .petGender(user.getPetGender())
+                .petPersonality(user.getPetPersonality())
                 .build();
     }
-    
 }

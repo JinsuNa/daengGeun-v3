@@ -7,12 +7,9 @@
 
 import axios from "axios"
 
-
-
-
-// const API_BASE_URL = 'http://localhost:8080/api';
-const API_BASE_URL="http://localhost:8080/api"
-
+// API 기본 URL 설정 (실제 배포 시 환경에 맞게 변경)
+const API_BASE_URL = 'http://localhost:8080/api';
+// const API_BASE_URL = "/api" // 프록시 설정 시
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -59,46 +56,41 @@ api.interceptors.response.use(
 // 로그인 API
 export const login = async (email, password) => {
   try {
-      const response = await fetch("http://localhost:8080/api/login", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-      });
+    const response = await axios.post("http://localhost:8080/api/user/login", {
+      email,
+      password,
+    });
 
-      if (!response.ok) {
-          throw new Error("로그인 실패: 이메일 또는 비밀번호가 올바르지 않습니다.");
-      }
+    console.log("🔹 로그인 API 응답 데이터:", response.data); // ✅ 응답 로그 확인
 
-      const data = await response.json();
-      return data; // { userId, email, nickname, token }
+    return response.data; // ✅ axios는 자동으로 JSON 변환하므로 .json()이 필요 없음
   } catch (error) {
-      throw error;
+    console.error("❌ 로그인 요청 오류:", error.response?.data || error.message);
+
+    // 서버에서 온 에러 메시지를 던짐
+    throw new Error(error.response?.data?.message || "로그인 실패: 서버 오류 발생");
   }
 };
 
-// 회원가입 API
-export const register = async (userData) => {
+/**
+ * @param {FormData} formData - 사용자 정보 + 이미지 파일
+ * @returns {Promise<any>}
+ */
+export const register = async (formData) => {
   try {
-      const response = await fetch("http://localhost:8080/api/register", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(userData),
-      });
+    const response = await axios.post("http://localhost:8080/api/user/register", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-      if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(errorMessage || "회원가입에 실패했습니다.");
-      }
-
-      return await response.text(); // 회원가입 성공 메시지 반환
+    return response.data; // 서버 응답 반환
   } catch (error) {
-      throw error;
+    console.error("회원가입 API 오류:", error.response?.data || error.message);
+    throw error;
   }
 };
+
 
 // 비밀번호 찾기 API
 export const forgotPassword = async (username, email) => {
@@ -303,8 +295,6 @@ export const uploadFile = async (file, type = "image") => {
     throw error.response ? error.response.data : error
   }
 }
-
-
 
 export default api
 

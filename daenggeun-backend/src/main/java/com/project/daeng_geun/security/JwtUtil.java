@@ -14,10 +14,10 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1일
+
     // JWT 생성
     public String generateToken(String email, Long userId) {
-        // 1일
-        long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)  // 사용자 ID 추가 (선택 사항)
@@ -49,4 +49,5 @@ public class JwtUtil {
     public Long extractUserId(String token) {
         return extractClaims(token).get("userId", Long.class);
     }
+
 }
