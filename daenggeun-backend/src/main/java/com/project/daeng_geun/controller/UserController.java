@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -42,6 +42,7 @@ public class UserController {
                 .phone(userDTO.getPhone())
                 .address(userDTO.getAddress())
                 .location(userDTO.getLocation())
+                .createdAt(userDTO.getCreatedAt())
                 .build();
 
         userRepository.save(user);
@@ -54,10 +55,10 @@ public class UserController {
                             .gender(petDTO.getGender())
                             .breed(petDTO.getBreed())
                             .personality(petDTO.getPersonality())
+                            .image(petDTO.getImage())
                             .user(user) // User와 관계 설정
                             .build())
                     .collect(Collectors.toList());
-//            user.setPets(pets);
             petRepository.saveAll(pets);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공!");

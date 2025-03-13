@@ -5,6 +5,7 @@ import com.project.daeng_geun.entity.User;
 import jakarta.persistence.Column;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,8 @@ public class UserDTO {
     private String address;
     private String location;
     private List<PetDTO> pets;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
     private static UserDTO fromEntity(User user) {
@@ -34,7 +37,10 @@ public class UserDTO {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .location(user.getLocation())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .pets(user.getPets().stream().map(PetDTO::fromEntity).collect(Collectors.toList()))
                 .build();
     }
+    
 }

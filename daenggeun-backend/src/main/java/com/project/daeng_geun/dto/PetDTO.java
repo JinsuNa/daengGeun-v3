@@ -14,6 +14,7 @@ public class PetDTO {
     private String gender;
     private String breed;
     private String personality;
+    private String image;
 
     public static PetDTO fromEntity(Pet pet) {
         return PetDTO.builder()
@@ -22,6 +23,7 @@ public class PetDTO {
                 .gender(pet.getGender())
                 .breed(pet.getBreed())
                 .personality(pet.getPersonality())
+                .image(pet.getImage())
                 .build();
     }
 }
