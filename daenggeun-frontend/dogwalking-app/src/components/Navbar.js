@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 import "../styles/Navbar.css"
 
-function Navbar({ isAuthenticated, user, onLogout }) {
+function Navbar({ isAuthenticated,onLogout }) {
   // 현재 경로 가져오기
   const location = useLocation()
 
   // 모바일 메뉴 상태 관리
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const [user, setUser] = useState(null);
   // 알림 관련 상태 관리
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -72,6 +72,14 @@ function Navbar({ isAuthenticated, user, onLogout }) {
       setUnreadCount(dummyNotifications.filter((notification) => !notification.read).length)
     }
   }, [isAuthenticated])
+
+  // 로그인을 하면 로컬스토리지에 회원정보가 jwt토근으로 받아 json으로 변환해주는 코드
+  useEffect(() => {
+    const storedUser = localStorage.getItem("nickname"); // ✅ 닉네임 가져오기
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, [isAuthenticated]);
 
   // 메뉴 토글 함수
   const toggleMenu = () => {
@@ -164,7 +172,6 @@ function Navbar({ isAuthenticated, user, onLogout }) {
         {/* 로고 */}
         <Link to="/" className="navbar-logo">
           <img src="/logo.svg" alt="댕근 로고" className="logo-image" />
-          <span className="logo-text">댕근</span>
         </Link>
 
         {/* 모바일 메뉴 버튼 */}
@@ -192,7 +199,7 @@ function Navbar({ isAuthenticated, user, onLogout }) {
           <div className="auth-buttons">
             {isAuthenticated ? (
               <>
-                <span className="user-name">{user?.name || "사용자"}님</span>
+                <span className="user-name">{user || "사용자"}님</span>
 
                 {/* 알림 버튼 */}
                 <button className="notification-button" onClick={toggleNotification}>
