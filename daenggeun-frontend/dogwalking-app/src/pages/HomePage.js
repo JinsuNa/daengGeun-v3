@@ -63,13 +63,13 @@ function HomePage() {
                 <div className="dog-image-container">
                   <div className="dog-rank">🥈 2등</div>
                   <img
-                    src={"/placeholder.svg"}
-                    alt={topDogs[1]?.name}
+                    src={topDogs[1]?.image}
+                    alt={topDogs[1]?.userName}
                     className="dog-image second"
                   />
                 </div>
-                <h3 className="dog-name">{topDogs[1]?.name}</h3>
-                <p className="dog-info">{topDogs[1]?.breed} , {topDogs[1]?.age}살</p>
+                <h3 className="dog-name">{topDogs[1]?.userName}</h3>
+                <p className="dog-info">{topDogs[1]?.petBreed} , {topDogs[1]?.petAge}살</p>
 
               </div>
 
@@ -78,13 +78,13 @@ function HomePage() {
                 <div className="dog-image-container">
                   <div className="dog-rank">🥇 1등</div>
                   <img
-                    src={"/placeholder.svg"}
-                    alt={topDogs[0]?.name}
+                    src={topDogs[0]?.image}
+                    alt={topDogs[0]?.userName}
                     className="dog-image first"
                   />
                 </div>
-                <h3 className="dog-name">{topDogs[0]?.name}</h3>
-                <p className="dog-info">{topDogs[0]?.breed} , {topDogs[0]?.age}살</p>
+                <h3 className="dog-name">{topDogs[0]?.userName}</h3>
+                <p className="dog-info">{topDogs[0]?.petBreed} , {topDogs[0]?.petAge}살</p>
                 
               </div>
 
@@ -93,13 +93,13 @@ function HomePage() {
                 <div className="dog-image-container">
                   <div className="dog-rank">🥉 3등</div>
                   <img
-                    src={ "/placeholder.svg"}
-                    alt={topDogs[2]?.name}
+                    src={topDogs[2]?.image}
+                    alt={topDogs[2]?.userName}
                     className="dog-image third"
                   />
                 </div>
-                <h3 className="dog-name">{topDogs[2]?.name}</h3>
-                <p className="dog-info">{topDogs[2]?.breed} , {topDogs[2]?.age}살</p>
+                <h3 className="dog-name">{topDogs[2]?.userName}</h3>
+                <p className="dog-info">{topDogs[2]?.petBreed} , {topDogs[2]?.petAge}살</p>
               </div>
             </div>
           </div>

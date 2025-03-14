@@ -14,11 +14,11 @@ public class MatchDTO {
 
     private Long id;
     private Long likeCount;
-    private String name;
-    private String breed;
-    private Integer age;
-    private String gender;
-    private String personality;
+    private String userName;
+    private String petBreed;
+    private Integer petAge;
+    private String petGender;
+    private String petPersonality;
     private String image;
     private String location;
 
@@ -29,11 +29,11 @@ public class MatchDTO {
         return MatchDTO.builder()
                 .id(user.getId())
                 .likeCount(user.getLikeCount())
-                .name(user.getNickname())
-                .breed(user.getPetBreed())
-                .age(user.getPetAge())
-                .gender(user.getPetGender())
-                .personality(user.getPetPersonality())
+                .userName(user.getNickname())
+                .petBreed(user.getPetBreed())
+                .petAge(user.getPetAge())
+                .petGender(user.getPetGender())
+                .petPersonality(user.getPetPersonality())
                 .image(user.getImage())
                 .location(user.getLocation())
                 .build();

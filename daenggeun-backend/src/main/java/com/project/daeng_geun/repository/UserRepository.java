@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     //    Native Query 사용
 //    댕근찾기에서 사용할 랜덤 카드 2장 뽑아 오는 코드
-    @Query(value = "SELECT * FROM users ORDER BY RAND() LIMIT 2", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE id <> 2 ORDER BY RAND() LIMIT 2", nativeQuery = true)
     List<User> findRandomUsers();
 
     //    main페이지에 노출될 like를 받은 top3 댕댕이

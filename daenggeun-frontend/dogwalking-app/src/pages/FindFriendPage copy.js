@@ -67,17 +67,17 @@ const handleSelect = async (id) => {
       ) : (
         <div className="profiles-container">
           <div className="profile-card">
-            <h2>{currentProfiles[0]?.name}</h2>
+            <h2>{currentProfiles[0]?.userName}</h2>
             <img
               src={currentProfiles[0]?.image || "/placeholder.svg"}
-              alt={currentProfiles[0]?.name}
+              alt={currentProfiles[0]?.userName}
               className="profile-image"
             />
             <div className="profile-details">
-              <p>견종: {currentProfiles[0]?.breed}</p>
-              <p>나이: {currentProfiles[0]?.age}살</p>
-              <p>성별: {currentProfiles[0]?.gender}</p>
-              <p>{currentProfiles[0]?.personality}</p>
+              <p>견종: {currentProfiles[0]?.petBreed}</p>
+              <p>나이: {currentProfiles[0]?.petAge}살</p>
+              <p>성별: {currentProfiles[0]?.petGender}</p>
+              <p>{currentProfiles[0]?.petPersonality}</p>
               <p>📍 {currentProfiles[0]?.location}</p>
             </div>
             <button className="select-button" onClick={()=>handleSelect(currentProfiles[0]?.id)}>선택하기</button>
@@ -102,17 +102,17 @@ const handleSelect = async (id) => {
           </div>
 
           <div className="profile-card">
-            <h2>{currentProfiles[1]?.name}</h2>
+            <h2>{currentProfiles[1]?.userName}</h2>
             <img
               src={currentProfiles[1]?.image || "/placeholder.svg"}
-              alt={currentProfiles[1]?.name}
+              alt={currentProfiles[1]?.userName}
               className="profile-image"
             />
                 <div className="profile-details">
-              <p>견종: {currentProfiles[1]?.breed}</p>
-              <p>나이: {currentProfiles[1]?.age}살</p>
-              <p>성별: {currentProfiles[1]?.gender}</p>
-              <p>{currentProfiles[1]?.personality}</p>
+              <p>견종: {currentProfiles[1]?.petBreed}</p>
+              <p>나이: {currentProfiles[1]?.petAge}살</p>
+              <p>성별: {currentProfiles[1]?.petGender}</p>
+              <p>{currentProfiles[1]?.petPersonality}</p>
               <p>📍 {currentProfiles[1]?.location}</p>
             </div>
             <button className="select-button" onClick={()=>handleSelect(currentProfiles[1]?.id)}>선택하기</button>
