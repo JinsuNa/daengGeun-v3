@@ -1,5 +1,6 @@
 package com.project.daeng_geun.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -19,18 +20,20 @@ public class Match {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester_id", nullable = false)
-    private User requester;
+    @JoinColumn(name = "sender_id", nullable = false)
+    @JsonBackReference
+    private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
+    @JsonBackReference
     private User receiver;
 
-    @Column(nullable = false)
-    private String status; // PENDING, ACCEPTED, REJECTED
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String message;
 
-    @Column
-    private Integer selectionCount;
+    @Column(nullable = false)
+    private String status; // SENT, DELIVERED, READ
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -40,6 +43,7 @@ public class Match {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        status = "SENT"; // 기본값
     }
 
     @PreUpdate

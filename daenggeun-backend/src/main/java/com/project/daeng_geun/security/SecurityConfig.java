@@ -15,10 +15,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // 🔹 `/api/**` 경로에 대해 CSRF 보호 비활성화
+                .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (꼭 필요!)
+                .cors(cors -> cors.disable()) // CORS 비활성화 (옵션)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll() // ✅ `/api/**` 경로 인증 없이 허용
-                        .anyRequest().authenticated() // 🔒 나머지 요청은 인증 필요
+                        .requestMatchers("/api/**").permitAll() // api로 시작하는 URL 모두 허용
+                        .anyRequest().authenticated()           // 나머지는 인증 필요
                 );
 
         return http.build();
@@ -28,4 +29,21 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable()) // 🔹 `/api/**` 경로에 대해 CSRF 보호 비활성화
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/**").permitAll() // ✅ `/api/**` 경로 인증 없이 허용
+//                        .anyRequest().authenticated() // 🔒 나머지 요청은 인증 필요
+//                );
+//
+//        return http.build();
+//    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 }
