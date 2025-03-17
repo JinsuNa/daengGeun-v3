@@ -13,6 +13,7 @@ public class UserDTO {
     private Long id;
     private String email;
     private String password;
+    private String repeatPassword;
     private String username;
     private String phone;
     private String address;
@@ -37,6 +38,22 @@ public class UserDTO {
                 .petAge(user.getPetAge())
                 .petGender(user.getPetGender())
                 .petPersonality(user.getPetPersonality())
+                .build();
+    }
+
+    //    Dto -> entity 변환
+    public User toEntity() {
+        return User.builder()
+                .email(this.email)
+                .password(this.password)
+                .nickname(this.username)
+                .address(this.address)
+                .location(this.location)
+                .petName(this.petName)
+                .petBreed(this.petBreed)
+                .petAge(this.petAge)
+                .petGender(this.petGender)
+                .petPersonality(this.petPersonality)
                 .build();
     }
 }
