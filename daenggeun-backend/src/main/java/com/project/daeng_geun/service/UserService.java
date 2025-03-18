@@ -39,7 +39,7 @@ public class UserService {
         User user = User.builder()
                 .email(userDTO.getEmail())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
-                .nickname(userDTO.getUsername())
+                .nickname(userDTO.getNickname())
                 .address(userDTO.getAddress())
                 .location(userDTO.getLocation())
                 .petName(userDTO.getPetName())
@@ -63,8 +63,8 @@ public class UserService {
     }
 
     //    아이디 중복 확인
-    public boolean isUsername(String username) {
-        return !userRepository.existsByNickname(username);
+    public boolean isUsername(String email) {
+        return !userRepository.existsByEmail(email);
     }
 
     //    이메일 중복 확인

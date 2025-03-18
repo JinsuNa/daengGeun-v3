@@ -1,6 +1,7 @@
+
 /* 마이페이지 스타일 */
 .mypage-container {
-  display: grid;
+
   grid-template-columns: 1fr;
   gap: 2rem;
 }
@@ -137,5 +138,158 @@
   padding: 3rem 1rem;
   text-align: center;
   color: var(--muted-foreground-color);
+}
+
+
+/* 🌟 마이페이지 전체 컨테이너 */
+.page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌟 페이지 타이틀 */
+.page-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* 🌟 카드 스타일 */
+.card {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* 🌟 카드 제목 */
+.card-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #e53880;
+}
+
+/* 🌟 프로필 이미지 */
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ddd;
+}
+
+/* 🌟 프로필 정보 */
+.profile-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #e53880;
+}
+
+.profile-email {
+  font-size: 14px;
+  color: #e53880;
+  margin-bottom: 10px;
+}
+
+.profile-bio {
+  font-size: 14px;
+  color: #555;
+  font-style: italic;
+}
+
+/* 🌟 입력 필드 */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-bottom: 5px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+input:focus,
+select:focus {
+  border-color: #e53880;
+  outline: none;
+  box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.2);
+}
+
+/* 🌟 버튼 스타일 */
+.btn-save {
+  width: 100%;
+  padding: 12px;
+  background: #e53880;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-save:hover {
+  background: #0056b3;
+}
+
+.btn-save:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+/* 🌟 반응형 스타일 */
+@media (max-width: 600px) {
+  .page-container {
+    padding: 15px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+  }
+
+  .btn-save {
+    font-size: 14px;
+  }
+}
+.petcard-content{
+  height: 500px;
+  margin: auto;
+}
+.mycard{
+  height: 500px;
 }
 

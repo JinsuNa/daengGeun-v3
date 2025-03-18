@@ -20,7 +20,11 @@ function RegisterPage({ onLogin }) {
     email: "",
     password: "",
     confirmPassword: "",
+<<<<<<< Updated upstream
     username: "",
+=======
+    nickname: "",
+>>>>>>> Stashed changes
     phone: "",
     address: "",
     location: "",
@@ -34,6 +38,10 @@ function RegisterPage({ onLogin }) {
     breed: "",
     personality: "",
   });
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   const [validation, setValidation] = useState({
     email: { isChecking: false, isValid: false, isChecked: false, message: "" },
     username: {
@@ -46,7 +54,12 @@ function RegisterPage({ onLogin }) {
     confirmPassword: { isValid: false, message: "" },
     formIsValid: false,
   });
+<<<<<<< Updated upstream
   const [image, setimage] = useState(null);
+=======
+
+  const [profileImage, setProfileImage] = useState(null);
+>>>>>>> Stashed changes
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [registerError, setRegisterError] = useState("");
@@ -55,6 +68,7 @@ function RegisterPage({ onLogin }) {
   // 비밀번호 유효성 검사
   useEffect(() => {
     if (formData.password) {
+<<<<<<< Updated upstream
       if (isValidPassword(formData.password)) {
         setValidation((prev) => ({
           ...prev,
@@ -96,6 +110,28 @@ function RegisterPage({ onLogin }) {
       setValidation((prev) => ({
         ...prev,
         confirmPassword: { isValid: false, message: "" },
+=======
+      setValidation((prev) => ({
+        ...prev,
+        password: {
+          isValid: isValidPassword(formData.password),
+          message: isValidPassword(formData.password)
+            ? "사용 가능한 비밀번호입니다."
+            : "비밀번호는 6~12자리로 입력해주세요.",
+        },
+      }));
+    }
+
+    if (formData.confirmPassword) {
+      setValidation((prev) => ({
+        ...prev,
+        confirmPassword: {
+          isValid: doPasswordsMatch(formData.password, formData.confirmPassword),
+          message: doPasswordsMatch(formData.password, formData.confirmPassword)
+            ? "비밀번호가 일치합니다."
+            : "비밀번호가 일치하지 않습니다.",
+        },
+>>>>>>> Stashed changes
       }));
     }
   }, [formData.password, formData.confirmPassword]);
@@ -107,6 +143,7 @@ function RegisterPage({ onLogin }) {
       validation.email.isValid &&
       validation.password.isValid &&
       validation.confirmPassword.isValid &&
+<<<<<<< Updated upstream
       (formData.petName ? formData.petName.trim() !== "" : false) &&
       (formData.petAge ? formData.petAge.toString().trim() !== "" : false) &&
       (formData.petBreed ? formData.petBreed.trim() !== "" : false) &&
@@ -126,11 +163,21 @@ function RegisterPage({ onLogin }) {
     formData.petBreed,
     formData.address,
   ]);
+=======
+      formData.petName?.trim() !== "" &&
+      formData.petAge?.trim() !== "" &&
+      formData.petBreed?.trim() !== "" &&
+      formData.address?.trim() !== "";
+
+    setValidation((prev) => ({ ...prev, formIsValid: isFormValid }));
+  }, [validation, formData]);
+>>>>>>> Stashed changes
 
   // 입력 필드 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+<<<<<<< Updated upstream
   };
 
 
@@ -155,6 +202,37 @@ function RegisterPage({ onLogin }) {
     script.async = true;
     document.body.appendChild(script);
 
+=======
+
+    // 에러 메시지 초기화
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    if (name === "username" || name === "email") {
+      setValidation((prev) => ({
+        ...prev,
+        [name]: { isChecking: false, isValid: false, isChecked: false, message: "" },
+      }));
+    }
+
+    if (registerError) {
+      setRegisterError("");
+    }
+  };
+
+  // 셀렉트 변경 핸들러
+  const handleSelectChange = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ 카카오 우편번호 API 자동 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    document.body.appendChild(script);
+>>>>>>> Stashed changes
     return () => {
       document.body.removeChild(script);
     };
@@ -168,15 +246,20 @@ function RegisterPage({ onLogin }) {
         const districtMatch = fullAddress.match(/([가-힣]+구)/);
         const district = districtMatch ? districtMatch[1] : "";
 
+<<<<<<< Updated upstream
         setFormData((prev) => ({
           ...prev,
           address: fullAddress,
           location: district, // 구 정보 자동 설정
         }));
+=======
+        setFormData((prev) => ({ ...prev, address: fullAddress, location: district }));
+>>>>>>> Stashed changes
       },
     }).open();
   };
 
+<<<<<<< Updated upstream
   // 아이디 중복 확인 핸들러
   const handleCheckUsername = async () => {
     if (!formData.username.trim()) {
@@ -329,12 +412,27 @@ function RegisterPage({ onLogin }) {
       if (!formData.address) {
         setErrors((prev) => ({ ...prev, address: "주소를 입력해주세요." }));
       }
+=======
+  // 파일 입력 핸들러
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setProfileImage(e.target.files[0]);
+    }
+  };
+
+  // ✅ 폼 제출 핸들러
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validation.formIsValid) {
+>>>>>>> Stashed changes
       return;
     }
 
     setIsLoading(true);
 
     try {
+<<<<<<< Updated upstream
       // FormData 생성 (JSON + 이미지 함께 전송)
       const formDataToSend = new FormData();
 
@@ -355,6 +453,18 @@ function RegisterPage({ onLogin }) {
 
       
       // 회원가입 성공 시 처리
+=======
+      const formDataToSend = new FormData();
+      const userBlob = new Blob([JSON.stringify(formData)], { type: "application/json" });
+      formDataToSend.append("user", userBlob);
+
+      if (profileImage) {
+        formDataToSend.append("profileImage", profileImage);
+      }
+
+      const response = await register(formDataToSend);
+
+>>>>>>> Stashed changes
       if (response.success) {
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("token", response.token);
@@ -363,8 +473,12 @@ function RegisterPage({ onLogin }) {
           onLogin(response.user, response.token);
         }
 
+<<<<<<< Updated upstream
 
         navigate("/login");
+=======
+        navigate("/");
+>>>>>>> Stashed changes
       }
     } catch (error) {
       setRegisterError(error.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
@@ -379,13 +493,18 @@ function RegisterPage({ onLogin }) {
         <div className="auth-card">
           <div className="auth-card-header">
             <h2 className="auth-card-title">회원가입</h2>
+<<<<<<< Updated upstream
             <p className="auth-card-description">
               댕근의 새로운 회원이 되어보세요.
             </p>
+=======
+            <p className="auth-card-description">댕근의 새로운 회원이 되어보세요.</p>
+>>>>>>> Stashed changes
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-card-content">
+<<<<<<< Updated upstream
               {/* 회원가입 에러 메시지 */}
               {registerError && (
                 <div className="auth-alert auth-alert-error">
@@ -480,10 +599,29 @@ function RegisterPage({ onLogin }) {
                 <label htmlFor="password" className="form-label">
                   비밀번호
                 </label>
+=======
+              {registerError && <div className="auth-alert auth-alert-error">{registerError}</div>}
+
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">이메일</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="form-input"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">비밀번호</label>
+>>>>>>> Stashed changes
                 <input
                   type="password"
                   id="password"
                   name="password"
+<<<<<<< Updated upstream
                   className={`form-input ${
                     formData.password &&
                     (validation.password.isValid ? "valid" : "error")
@@ -721,14 +859,29 @@ function RegisterPage({ onLogin }) {
                 className="auth-button auth-button-primary"
                 disabled={isLoading || !validation.formIsValid}
               >
+=======
+                  className="form-input"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="auth-card-footer">
+              <button type="submit" className="auth-button auth-button-primary" disabled={isLoading || !validation.formIsValid}>
+>>>>>>> Stashed changes
                 {isLoading ? "가입 중..." : "회원가입"}
               </button>
 
               <p className="auth-footer-text">
+<<<<<<< Updated upstream
                 이미 계정이 있으신가요?{" "}
                 <Link to="/login" className="auth-link">
                   로그인
                 </Link>
+=======
+                이미 계정이 있으신가요? <Link to="/login" className="auth-link">로그인</Link>
+>>>>>>> Stashed changes
               </p>
             </div>
           </form>

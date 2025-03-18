@@ -29,6 +29,8 @@ public class Notification {
 
     private String link;
 
+    private boolean isread = false;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

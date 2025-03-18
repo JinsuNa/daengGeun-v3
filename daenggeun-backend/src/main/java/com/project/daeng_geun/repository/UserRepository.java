@@ -16,8 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    boolean existsByNickname(String nickname);
-
     //    Native Query 사용
 //    댕근찾기에서 사용할 랜덤 카드 2장 뽑아 오는 코드
     @Query(value = "SELECT * FROM users WHERE id <> 2 ORDER BY RAND() LIMIT 2", nativeQuery = true)
