@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS 활성화
                 .authorizeHttpRequests(auth -> auth
                         // ✅ 회원가입 & 로그인 API는 인증 없이 허용
-                        .requestMatchers("/api/user/register", "/api/user/login").permitAll()
+                        .requestMatchers("/api/user/register", "/api/user/login","/**").permitAll()
                         // ✅ 인증이 필요한 API
                         .requestMatchers("/api/**").authenticated()
                 )

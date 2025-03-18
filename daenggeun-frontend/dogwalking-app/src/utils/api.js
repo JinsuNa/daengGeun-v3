@@ -11,35 +11,9 @@ const api = axios.create({
   },
 });
 
-// 요청 인터셉터 설정 - 모든 요청에 인증 토큰 추가
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-// 응답 인터셉터 설정 - 인증 오류 처리
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    // 401 Unauthorized 오류 시 로그아웃 처리
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
+
+
 
 // 로그인 API
 export const loginUser = async (formData) => {
@@ -52,13 +26,45 @@ export const loginUser = async (formData) => {
 };
 
 // 회원가입 API
+/**
+ * @param {FormData} formData - 사용자 정보 + 이미지 파일
+ * @returns {Promise<any>}
+ */
 export const register = async (formData) => {
   try {
-    const response = await api.post(`${API_BASE_URL}/register`, formData);
-    return response.data;
+    const response = await axios.post("http://localhost:8080/api/user/register", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data; // 서버 응답 반환
   } catch (error) {
-    throw error.response ? error.response.data : error;
+    console.error("회원가입 API 오류:", error.response?.data || error.message);
+    throw error;
   }
+};
+
+// 닉네임 중복 api
+export const checkUsername = async (username) => {
+  const response = await axios.get(`${API_BASE_URL}/check-username`, {
+    params: { username },
+  });
+  return response.data;
+};
+
+// 이메일 중복 api
+export const checkEmail = async (email) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/check-email`, {
+      params: { email },
+    });
+  return response.data
+  } catch (error) {
+    console.error("닉네임 중복 확인 에러: ",error);
+    return false;
+  }
+
 };
 
 export default api;
