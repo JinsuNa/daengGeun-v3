@@ -43,8 +43,7 @@ public class CommentService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
-
-        return CommentDTO.fromEntity(commentRepository.save(comment));
+        return CommentDTO.fromEntity(savedComment);
     }
 
     // 댓글 수정

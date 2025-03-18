@@ -46,4 +46,11 @@ public class PostController {
     public List<PostDTO> getPostsByCategory(@PathVariable String category) {
         return postService.getPostsByCategory(category);
     }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Boolean> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {
+        boolean isLiked = postService.toggleLike(postId, userId);
+        return ResponseEntity.ok(isLiked);
+    }
+
 }

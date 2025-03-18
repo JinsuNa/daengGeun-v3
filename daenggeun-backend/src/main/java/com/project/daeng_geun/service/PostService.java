@@ -2,11 +2,14 @@ package com.project.daeng_geun.service;
 
 import com.project.daeng_geun.dto.PostDTO;
 import com.project.daeng_geun.entity.Post;
+import com.project.daeng_geun.entity.PostLike;
 import com.project.daeng_geun.entity.User;
+import com.project.daeng_geun.repository.PostLikeRepository;
 import com.project.daeng_geun.repository.PostRepository;
 import com.project.daeng_geun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +20,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository; // ✅ 추가
 
     // 전체 게시글 조회
     public List<PostDTO> getAllPosts() {
@@ -47,6 +51,7 @@ public class PostService {
                 .category(postDTO.getCategory())
                 .viewCount(0)
                 .user(user)
+                .likeCount(0) // 기본값 설정
                 .build();
 
         Post savedPost = postRepository.save(post);
@@ -77,4 +82,28 @@ public class PostService {
                 .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    // ✅ 좋아요 토글 메서드 추가
+    @Transactional
+    public boolean toggleLike(Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        boolean isLiked = postLikeRepository.existsByUserAndPost(user, post);
+
+        if (isLiked) {
+            postLikeRepository.deleteByUserAndPost(user, post);
+            post.setLikeCount(post.getLikeCount() - 1);
+        } else {
+            PostLike postLike = PostLike.builder().user(user).post(post).build();
+            postLikeRepository.save(postLike);
+            post.setLikeCount(post.getLikeCount() + 1);
+        }
+
+        postRepository.save(post);
+        return !isLiked; // 프론트엔드에서 true/false로 상태 처리 가능
+    }
+
 }

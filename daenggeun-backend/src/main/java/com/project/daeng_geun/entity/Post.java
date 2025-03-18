@@ -53,4 +53,7 @@ public class Post {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Column(name = "like_count")
+    private int likeCount;
 }
