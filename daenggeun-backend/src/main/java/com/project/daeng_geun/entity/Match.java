@@ -1,6 +1,7 @@
 package com.project.daeng_geun.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -21,12 +22,12 @@ public class Match {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties({"sentMessages", "receivedMessages", "hibernateLazyInitializer"}) // 🚀 sender 정보를 포함하도록 설정
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties({"sentMessages", "receivedMessages", "hibernateLazyInitializer"}) // 🚀 receiver 정보를 포함하도록 설정
     private User receiver;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -38,7 +39,6 @@ public class Match {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -46,8 +46,4 @@ public class Match {
         status = "SENT"; // 기본값
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

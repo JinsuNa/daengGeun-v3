@@ -50,9 +50,10 @@ function MyPage({ isAuthenticated }) {
     // 사용자 정보 로드 (실제로는 API에서 가져올 것)
     setTimeout(() => {
       // 로컬 스토리지에서 사용자 정보 확인
-      const storedUser = localStorage.getItem("user")
+      const storedEmail = localStorage.getItem("email");
+      const storedNickname = localStorage.getItem("nickname");
 
-      if (!storedUser) {
+      if (!storedEmail) {
         // 로그인되지 않은 경우 로그인 페이지로 리디렉션
         navigate("/login")
         return
@@ -61,9 +62,9 @@ function MyPage({ isAuthenticated }) {
       // 임시 사용자 데이터
       const userData = {
         id: 1,
-        name: JSON.parse(storedUser).name || "사용자",
-        email: JSON.parse(storedUser).email || "user@example.com",
-        isAdmin: JSON.parse(storedUser).email === "admin@example.com",
+        name: storedNickname || "사용자",  // nickname은 원래 문자열이므로 바로 할당
+        email: storedEmail || "ppotto.dog@gmail.com",
+        isAdmin: storedEmail === "admin@danggeun.com",
         profileImage: "/placeholder.svg?height=200&width=200",
         bio: "강아지를 사랑하는 평범한 견주입니다. 주로 한강공원에서 산책을 즐겨요.",
         phone: "010-1234-5678",

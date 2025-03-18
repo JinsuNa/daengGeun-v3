@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/AuthPages.css";
-import { register, checkUsername, checkEmail, uploadFile } from "../utils/api";
+import { register, uploadFile, checkUsername, checkEmail } from "../utils/api";
 import {
   isValidUsername,
   isValidEmail,
@@ -11,6 +11,7 @@ import {
   doPasswordsMatch,
   isValidAge,
 } from "../utils/validation";
+import axios from "axios";
 
 function RegisterPage({ onLogin }) {
   const navigate = useNavigate();
@@ -19,21 +20,18 @@ function RegisterPage({ onLogin }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
+    repeatPassword: "",
     username: "",
     phone: "",
     address: "",
     location: "",
-    pets: [],
-  });
-
-  const [petData, setPetData] = useState({
     name: "",
     age: "",
     gender: "Male",
     breed: "",
     personality: "",
   });
+
   const [validation, setValidation] = useState({
     email: { isChecking: false, isValid: false, isChecked: false, message: "" },
     username: {
@@ -43,7 +41,7 @@ function RegisterPage({ onLogin }) {
       message: "",
     },
     password: { isValid: false, message: "" },
-    confirmPassword: { isValid: false, message: "" },
+    repeatPassword: { isValid: false, message: "" },
     formIsValid: false,
   });
   const [image, setimage] = useState(null);
@@ -52,6 +50,80 @@ function RegisterPage({ onLogin }) {
   const [registerError, setRegisterError] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
+  const [formValidation, setFormValidation] = useState({
+    username: {
+      isChecking: false,
+      isValid: false,
+      isChecked: false,
+      message: "",
+    },
+    email: { isChecking: false, isValid: false, isChecked: false, message: "" },
+  });
+
+  // 입력 필드 변경 핸들러
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // 닉네임이 바뀌면 중복 확인 상태 초기화
+    setFormValidation((prev) => ({
+      ...prev,
+      [e.target.name]: {
+        isChecked: false,
+        isValid: false,
+        isChecking: false, // ⬅ 변경하면 다시 입력 가능!
+        message: "",
+      },
+    }));
+  };
+
+  // 회원가입 에러 메시지 초기화
+  if (registerError) {
+    setRegisterError("");
+  }
+
+  // ✅ 폼 제출 핸들러 (Spring Boot API 연동)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // 이메일 또는 닉네임이 확인되지 않았거나, 유효하지 않으면 회원가입 불가
+    if (!formValidation.email.isValid || !formValidation.username.isValid) {
+      setRegisterError("이메일과 닉네임 중복 확인을 완료해야 합니다.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // FormData 생성 (JSON + 이미지 함께 전송)
+      const formDataToSend = new FormData();
+
+      // JSON 데이터를 Blob 형태로 변환 후 추가
+      const userBlob = new Blob([JSON.stringify(formData)], {
+        type: "application/json",
+      });
+      formDataToSend.append("user", userBlob);
+
+      // 프로필 이미지 추가 (선택 사항)
+      if (image) {
+        formDataToSend.append("image", image);
+      }
+
+      // 회원가입 API 호출
+      const response = await register(formDataToSend);
+
+      console.log("🔹 회원가입 응답 데이터:", response); // 확인용 로그
+      console.log("🔹 응답 success 값:", response.success);
+
+      navigate("/login");
+    } catch (error) {
+      setRegisterError(
+        error.message || "회원가입에 실패했습니다. 다시 시도해주세요."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 비밀번호 check validation 시작
   // 비밀번호 유효성 검사
   useEffect(() => {
     if (formData.password) {
@@ -77,16 +149,16 @@ function RegisterPage({ onLogin }) {
     }
 
     // 비밀번호 확인 유효성 검사
-    if (formData.confirmPassword) {
-      if (doPasswordsMatch(formData.password, formData.confirmPassword)) {
+    if (formData.repeatPassword) {
+      if (doPasswordsMatch(formData.password, formData.repeatPassword)) {
         setValidation((prev) => ({
           ...prev,
-          confirmPassword: { isValid: true, message: "비밀번호가 일치합니다." },
+          repeatPassword: { isValid: true, message: "비밀번호가 일치합니다." },
         }));
       } else {
         setValidation((prev) => ({
           ...prev,
-          confirmPassword: {
+          repeatPassword: {
             isValid: false,
             message: "비밀번호가 일치하지 않습니다.",
           },
@@ -95,58 +167,104 @@ function RegisterPage({ onLogin }) {
     } else {
       setValidation((prev) => ({
         ...prev,
-        confirmPassword: { isValid: false, message: "" },
+        repeatPassword: { isValid: false, message: "" },
       }));
     }
-  }, [formData.password, formData.confirmPassword]);
+  }, [formData.password, formData.repeatPassword]);
 
-  // 전체 폼 유효성 검사
-  useEffect(() => {
-    const isFormValid =
-      validation.username.isValid &&
-      validation.email.isValid &&
-      validation.password.isValid &&
-      validation.confirmPassword.isValid &&
-      (formData.petName ? formData.petName.trim() !== "" : false) &&
-      (formData.petAge ? formData.petAge.toString().trim() !== "" : false) &&
-      (formData.petBreed ? formData.petBreed.trim() !== "" : false) &&
-      (formData.address ? formData.address.trim() !== "" : false);
-  
-    setValidation((prev) => ({
-      ...prev,
-      formIsValid: isFormValid,
-    }));
-  }, [
-    validation.username.isValid,
-    validation.email.isValid,
-    validation.password.isValid,
-    validation.confirmPassword.isValid,
-    formData.petName,
-    formData.petAge,
-    formData.petBreed,
-    formData.address,
-  ]);
+  // 비밀번호 check validation 끝
 
-  // 입력 필드 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-
-    // 회원가입 에러 메시지 초기화
-    if (registerError) {
-      setRegisterError("")
+  //  닉네임 validation 시작
+  const handleCheckUsername = async () => {
+    if (!formData.username.trim()) {
+      setFormValidation((prev) => ({
+        ...prev,
+        username: {
+          isChecked: true,
+          isValid: false,
+          isChecking: false,
+          message: "닉네임을 입력하세요.",
+        },
+      }));
+      return;
     }
-  
 
-  // 셀렉트 변경 핸들러
-  const handleSelectChange = (name, value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormValidation((prev) => ({
+      ...prev,
+      username: { ...prev.username, isChecking: true },
+    }));
+
+    const isAvailable = await checkUsername(formData.username); // ✅ API 호출
+
+    setFormValidation((prev) => ({
+      ...prev,
+      username: {
+        isChecked: true,
+        isValid: isAvailable, // true면 사용 가능, false면 중복
+        isChecking: false,
+        message: isAvailable
+          ? "사용 가능한 닉네임입니다."
+          : "이미 사용 중인 닉네임입니다.",
+      },
+    }));
   };
+
+  // 이메일 중복 확인
+  const handleCheckEmail = async () => {
+    const email = formData.email.trim();
+
+    // 이메일이 비어 있는 경우
+    if (!email) {
+      setFormValidation((prev) => ({
+        ...prev,
+        email: {
+          isChecked: true,
+          isValid: false,
+          isChecking: false,
+          message: "이메일을 입력하세요.",
+        },
+      }));
+      return;
+    }
+
+    // 이메일 형식이 올바르지 않은 경우
+    if (!isValidEmail(email)) {
+      setFormValidation((prev) => ({
+        ...prev,
+        email: {
+          isChecked: true,
+          isValid: false,
+          isChecking: false,
+          message: "유효한 이메일 주소를 입력해주세요.",
+        },
+      }));
+      return;
+    }
+
+    setFormValidation((prev) => ({
+      ...prev,
+      email: { ...prev.email, isChecking: true },
+    }));
+
+    // 이메일 중복 확인 API 호출
+    const isAvailable = await checkEmail(email);
+
+    setFormValidation((prev) => ({
+      ...prev,
+      email: {
+        isChecked: true,
+        isValid: isAvailable,
+        isChecking: false,
+        message: isAvailable
+          ? "사용 가능한 이메일입니다."
+          : "이미 사용 중인 이메일입니다.",
+      },
+    }));
+  };
+
+  // 이메일 및 닉네임 validation 끝
+
+  // 카카오 다음 api 주소 시작
   // ✅ 카카오 우편번호 API 자동 로드
   useEffect(() => {
     const script = document.createElement("script");
@@ -176,202 +294,16 @@ function RegisterPage({ onLogin }) {
       },
     }).open();
   };
+  // 카카오 다음 api 주소 끝
 
-  // 아이디 중복 확인 핸들러
-  const handleCheckUsername = async () => {
-    if (!formData.username.trim()) {
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "아이디를 입력해주세요.",
-        },
-      }));
-      return;
-    }
-
-    if (!isValidUsername(formData.username)) {
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "아이디는 3~20자의 영문, 숫자, 한글만 가능합니다.",
-        },
-      }))
-      return
-    }
-
-    setValidation((prev) => ({
-      ...prev,
-      username: {
-        isChecking: true,
-        isValid: false,
-        isChecked: false,
-        message: "확인 중...",
-      },
-    }))
-
-    try {
-      // 아이디 중복 확인 API 호출
-      const response = await checkUsername(formData.username);
-
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: response.available,
-          isChecked: true,
-          message: response.message,
-        },
-      }))
-    } catch (error) {
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "중복 확인 중 오류가 발생했습니다.",
-        },
-      }))
-    }
-  }
-
-  // 이메일 중복 확인 핸들러
-  const handleCheckEmail = async () => {
-    if (!formData.email.trim() || !isValidEmail(formData.email)) {
-      setValidation((prev) => ({
-        ...prev,
-        email: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "유효한 이메일을 입력해주세요.",
-        },
-      }))
-      return
-    }
-
-    setValidation((prev) => ({
-      ...prev,
-      email: {
-        isChecking: true,
-        isValid: false,
-        isChecked: false,
-        message: "확인 중...",
-      },
-    }))
-
-    try {
-      // 이메일 중복 확인 API 호출
-      const response = await checkEmail(formData.email);
-
-      setValidation((prev) => ({
-        ...prev,
-        email: {
-          isChecking: false,
-          isValid: response.available,
-          isChecked: true,
-          message: response.message,
-        },
-      }))
-    } catch (error) {
-      setValidation((prev) => ({
-        ...prev,
-        email: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "중복 확인 중 오류가 발생했습니다.",
-        },
-      }))
-    }
-  }
-
+  // 이미지 s3업로드 시작
   // 파일 입력 핸들러
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setimage(e.target.files[0]);
     }
   };
-
-  // ✅ 폼 제출 핸들러 (Spring Boot API 연동)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // 🔹 폼 유효성 검사
-    if (!validation.formIsValid) {
-      if (!validation.username.isChecked) {
-        setErrors((prev) => ({ ...prev, username: "아이디 중복 확인을 해주세요." }));
-      }
-      if (!validation.email.isChecked) {
-        setErrors((prev) => ({ ...prev, email: "이메일 중복 확인을 해주세요." }));
-      }
-      if (!validation.password.isValid) {
-        setErrors((prev) => ({ ...prev, password: "비밀번호는 6~12자리로 입력해주세요." }));
-      }
-      if (!validation.confirmPassword.isValid) {
-        setErrors((prev) => ({ ...prev, confirmPassword: "비밀번호가 일치하지 않습니다." }));
-      }
-      if (!formData.petName) {
-        setErrors((prev) => ({ ...prev, petName: "반려견 이름을 입력해주세요." }));
-      }
-      if (!formData.petAge || !isValidAge(formData.petAge)) {
-        setErrors((prev) => ({ ...prev, petAge: "유효한 나이를 입력해주세요." }));
-      }
-      if (!formData.petBreed) {
-        setErrors((prev) => ({ ...prev, petBreed: "견종을 입력해주세요." }));
-      }
-      if (!formData.address) {
-        setErrors((prev) => ({ ...prev, address: "주소를 입력해주세요." }));
-      }
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // FormData 생성 (JSON + 이미지 함께 전송)
-      const formDataToSend = new FormData();
-
-      // JSON 데이터를 Blob 형태로 변환 후 추가
-      const userBlob = new Blob([JSON.stringify(formData)], { type: "application/json" });
-      formDataToSend.append("user", userBlob);
-
-      // 프로필 이미지 추가 (선택 사항)
-      if (image) {
-        formDataToSend.append("image", image);
-      }
-
-      // 회원가입 API 호출
-      const response = await register(formDataToSend);
-
-      console.log("🔹 회원가입 응답 데이터:", response); // 확인용 로그
-      console.log("🔹 응답 success 값:", response.success);
-
-      
-      // 회원가입 성공 시 처리
-      if (response.success) {
-        localStorage.setItem("user", JSON.stringify(response.user));
-        localStorage.setItem("token", response.token);
-
-        if (onLogin) {
-          onLogin(response.user, response.token);
-        }
-
-
-        navigate("/login");
-      }
-    } catch (error) {
-      setRegisterError(error.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 이미지 s3업로드 끝
 
   return (
     <div className="auth-page">
@@ -403,32 +335,43 @@ function RegisterPage({ onLogin }) {
                     id="email"
                     name="email"
                     className={`form-input ${
-                      validation.email.isChecked &&
-                      (validation.email.isValid ? "valid" : "error")
+                      formValidation.email.isChecked &&
+                      (formValidation.email.isValid ? "valid" : "error")
                     }`}
                     placeholder="name@example.com"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled={isLoading || validation.email.isChecking}
+                    disabled={formValidation.email.isChecking}
                   />
                   <button
                     type="button"
                     className="address-search-button"
-                    onClick={handleCheckEmail}
-                    disabled={isLoading || validation.email.isChecking}
+                    onClick={handleCheckEmail} // 중복 확인 버튼에 이벤트 추가
+                    disabled={
+                      formValidation.email.isChecking ||
+                      formValidation.email.isValid
+                    } // 사용 가능이면 버튼 비활성화
                   >
-                    {validation.email.isChecking ? "확인 중..." : "중복확인"}
+                    {formValidation.email.isChecking
+                      ? "확인 중..."
+                      : "중복 확인"}
                   </button>
                 </div>
-                {validation.email.message && (
+
+                {/* 이메일 중복 확인 결과 메시지 */}
+                {formValidation.email.message && (
                   <p
                     className={`${
-                      validation.email.isValid ? "form-success" : "form-error"
+                      formValidation.email.isValid
+                        ? "form-success"
+                        : "form-error"
                     }`}
                   >
-                    {validation.email.message}
+                    {formValidation.email.message}
                   </p>
                 )}
+
+                {/* 에러 메시지 */}
                 {errors.email && <p className="form-error">{errors.email}</p>}
               </div>
               {/* 닉네임 입력 필드 */}
@@ -442,36 +385,39 @@ function RegisterPage({ onLogin }) {
                     id="username"
                     name="username"
                     className={`form-input ${
-                      validation.username.isChecked &&
-                      (validation.username.isValid ? "valid" : "error")
+                      formValidation.username.isChecked &&
+                      (formValidation.username.isValid ? "valid" : "error")
                     }`}
                     placeholder="사용자 닉네임"
                     value={formData.username}
                     onChange={handleChange}
-                    disabled={isLoading || validation.username.isChecking}
+                    disabled={formValidation.username.isChecking}
                   />
                   <button
                     type="button"
-                    className="address-search-button"
                     onClick={handleCheckUsername}
-                    disabled={isLoading || validation.username.isChecking}
+                    className="address-search-button"
+                    disabled={
+                      formValidation.username.isChecking ||
+                      formValidation.username.isValid
+                    } // 사용 가능이면 버튼 비활성화
                   >
-                    {validation.username.isChecking ? "확인 중..." : "중복확인"}
+                    {formValidation.username.isValid
+                      ? "사용 가능"
+                      : "중복 확인"}
                   </button>
                 </div>
-                {validation.username.message && (
+                {/* 닉네임 중복 확인 결과 메시지 */}
+                {formValidation.username.message && (
                   <p
                     className={`${
-                      validation.username.isValid
+                      formValidation.email.isValid
                         ? "form-success"
                         : "form-error"
                     }`}
                   >
-                    {validation.username.message}
+                    {formValidation.username.message}
                   </p>
-                )}
-                {errors.username && (
-                  <p className="form-error">{errors.username}</p>
                 )}
               </div>
 
@@ -512,65 +458,66 @@ function RegisterPage({ onLogin }) {
 
               {/* 비밀번호 확인 필드 */}
               <div className="form-group">
-                <label htmlFor="confirmPassword" className="form-label">
+                <label htmlFor="repeatPassword" className="form-label">
                   비밀번호 확인
                 </label>
                 <input
                   type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="repeatPassword"
+                  name="repeatPassword"
                   className={`form-input ${
-                    formData.confirmPassword &&
-                    (validation.confirmPassword.isValid ? "valid" : "error")
+                    formData.repeatPassword &&
+                    (validation.repeatPassword.isValid ? "valid" : "error")
                   }`}
                   placeholder="비밀번호 확인"
-                  value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {formData.confirmPassword && (
+                {formData.repeatPassword && (
                   <p
                     className={`${
-                      validation.confirmPassword.isValid
+                      validation.repeatPassword.isValid
                         ? "form-success"
                         : "form-error"
                     }`}
                   >
-                    {validation.confirmPassword.message}
+                    {validation.repeatPassword.message}
                   </p>
                 )}
-                {errors.confirmPassword && (
-                  <p className="form-error">{errors.confirmPassword}</p>
+                {errors.repeatPassword && (
+                  <p className="form-error">{errors.repeatPassword}</p>
                 )}
               </div>
 
               {/* 주소 입력 필드 */}
-            <div className="form-group">
-              <label htmlFor="address" className="form-label">
-                주소
-              </label>
-              <div className="address-input-group">
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  className="form-input"
-                  placeholder="주소 검색을 클릭하세요"
-                  value={formData.address}
-                  readOnly
-                />
-                <button
-                  type="button"
-                  className="address-search-button"
-                  onClick={handleAddressSearch}
-                >
-                  🔍 검색
-                </button>
+              <div className="form-group">
+                <label htmlFor="address" className="form-label">
+                  주소
+                </label>
+                <div className="address-input-group">
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    className="form-input"
+                    placeholder="주소 검색을 클릭하세요"
+                    value={formData.address}
+                    readOnly
+                  />
+                  <button
+                    type="button"
+                    className="address-search-button"
+                    onClick={handleAddressSearch}
+                  >
+                    🔍 검색
+                  </button>
+                </div>
+                {formData.location && (
+                  <p className="form-hint">
+                    지역: {formData.location} (자동 설정됨)
+                  </p>
+                )}
               </div>
-              {formData.location && (
-                <p className="form-hint">지역: {formData.location} (자동 설정됨)</p>
-              )}
-            </div>
 
               <div className="pet-info-section">
                 <h3 className="pet-info-title">반려견 정보</h3>
@@ -618,7 +565,7 @@ function RegisterPage({ onLogin }) {
                     name="petName"
                     className="form-input"
                     placeholder="초코"
-                    value={formData.name}
+                    value={formData.petName}
                     onChange={handleChange}
                     disabled={isLoading}
                   />
@@ -656,9 +603,6 @@ function RegisterPage({ onLogin }) {
                       name="petGender"
                       className="form-input"
                       value={formData.petGender}
-                      onChange={(e) =>
-                        handleSelectChange("petGender", e.target.value)
-                      }
                       disabled={isLoading}
                     >
                       <option value="남아">남아</option>
@@ -702,24 +646,17 @@ function RegisterPage({ onLogin }) {
                   />
                 </div>
               </div>
-
-              {/* 폼 유효성 상태 표시 */}
-              {!validation.formIsValid &&
-                formData.username &&
-                formData.email &&
-                formData.password && (
-                  <div className="auth-alert auth-alert-error">
-                    회원가입을 완료하려면 모든 필수 정보를 입력하고 중복 확인을
-                    완료해주세요.
-                  </div>
-                )}
             </div>
 
             <div className="auth-card-footer">
               <button
                 type="submit"
                 className="auth-button auth-button-primary"
-                disabled={isLoading || !validation.formIsValid}
+                disabled={
+                  isLoading ||
+                  !formValidation.email.isValid ||
+                  !formValidation.username.isValid
+                }
               >
                 {isLoading ? "가입 중..." : "회원가입"}
               </button>
