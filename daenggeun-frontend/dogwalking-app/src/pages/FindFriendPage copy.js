@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/find-friend.css";
-import { createMatch, deleteMatch, fetchMatches } from "../utils/matchApi";
+import { fetchMatches } from "../utils/matchApi";
 
 const BASE_URL = "http://localhost:8080/api/match";
 
@@ -12,7 +12,6 @@ const FindFriendPage = () => {
   const [loading, setLoading] = useState(true);
   const [showMatchedDogs, setShowMatchedDogs] = useState(false);
   const [matchedDogs, setMatchedDogs] = useState([]);
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
 
   // 상태 관리 부분에 selectedDog 상태 추가
   const [selectedDog, setSelectedDog] = useState(null);
@@ -20,8 +19,11 @@ const FindFriendPage = () => {
 
   useEffect(() => {
     fetchRandomUsers();
+  }, []);
+
+  useEffect(()=>{
     fetchMatchedDogs();
-  }, [userId]);
+  },[localStorage.getItem("userId")])
 
   // 랜덤 강아지 가져오기
   const fetchRandomUsers = async () => {
@@ -40,7 +42,11 @@ const FindFriendPage = () => {
   const fetchMatchedDogs = async () => {
     try {
       const response = await fetchMatches();
+      
       setMatchedDogs(response);
+      console.log(matchedDogs[0].nickname);
+      
+      
     } catch (error) {
       console.error("매칭된 강아지 리스트 가져오기 실패 : ", error);
     }
@@ -64,25 +70,13 @@ const FindFriendPage = () => {
   //   선택하기 버튼 클릭 시 like +1 db 저장
   const handleSelect = async (id) => {
     if (!id) {
-      return;
+      await fetchRandomUsers();
     }
     try {
       await axios.post(`${BASE_URL}/like/${id}`);
-      fetchRandomUsers();
+      await fetchRandomUsers();
     } catch (error) {
       console.log("좋아요 증가 실패: ", error);
-    }
-  };
-
-  // 선택하기 버튼 클릭 시 매칭 저장
-  const handleMatch = async (receiverId) => {
-    handleSelect(receiverId);
-    try {
-      const result = await createMatch(receiverId);
-      console.log("매칭 결과:", result);
-      fetchMatchedDogs();
-    } catch (error) {
-      console.error("❌ 매칭 처리 중 오류 발생:", error);
     }
   };
 
@@ -91,15 +85,9 @@ const FindFriendPage = () => {
     alert(`${currentProfiles[0]?.name}와 채팅을 시작합니다.`);
   };
 
-  // 삭제 기능
-  const handleDeleteMatch = async (receiverId) => {
-    try {
-      await deleteMatch(receiverId); // await 사용 가능
-      alert("매칭이 삭제되었습니다.");
-      fetchMatchedDogs(); // 최신 매칭 목록 다시 불러오기
-    } catch (error) {
-      alert("매칭 삭제에 실패했습니다.");
-    }
+  const handleReject = (dogId) => {
+    // 실제 구현 시에는 매칭 해제 API 호출
+    alert(`${currentProfiles[0]?.name}와의 매칭을 해제합니다.`);
   };
 
   return (
@@ -127,7 +115,7 @@ const FindFriendPage = () => {
             </div>
             <button
               className="select-button"
-              onClick={() => handleMatch(currentProfiles[0]?.id)}
+              onClick={() => handleSelect(currentProfiles[0]?.id)}
             >
               선택하기
             </button>
@@ -143,6 +131,7 @@ const FindFriendPage = () => {
               onClick={handleMatchedDogsClick}
             >
               ↩ 매칭된 댕댕이 ({matchedDogs.length})
+              
             </button>
             {showMatchedDogs && (
               <div
@@ -156,6 +145,7 @@ const FindFriendPage = () => {
                   <div className="matched-dogs-header">
                     <h3 className="matched-dogs-title">
                       매칭된 댕댕이 ({matchedDogs.length})
+                      
                     </h3>
                     <button
                       className="matched-dogs-close"
@@ -178,9 +168,7 @@ const FindFriendPage = () => {
                             className="matched-dog-image"
                           />
                           <div className="matched-dog-details">
-                            <span className="matched-dog-name">
-                              {dog.nickname}
-                            </span>
+                            <span className="matched-dog-name">{dog.nickname}</span>
                           </div>
                         </div>
                         <div className="matched-dog-actions">
@@ -197,7 +185,7 @@ const FindFriendPage = () => {
                             className="reject-button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteMatch(dog.id);
+                              handleReject(dog.id);
                             }}
                           >
                             거절
@@ -227,10 +215,46 @@ const FindFriendPage = () => {
             </div>
             <button
               className="select-button"
-              onClick={() => handleMatch(currentProfiles[1]?.id)}
+              onClick={() => handleSelect(currentProfiles[1]?.id)}
             >
               선택하기
             </button>
+          </div>
+        </div>
+      )}
+      {showDogPopup && selectedDog && (
+        <div className="dog-popup-backdrop" onClick={handleClosePopup}>
+          <div className="dog-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="dog-popup-close" onClick={handleClosePopup}>
+              ×
+            </button>
+            <div className="dog-popup-content">
+              <div className="dog-popup-image-container">
+                <img
+                  src={selectedDog.image || "/placeholder.svg"}
+                  alt={selectedDog.name}
+                  className="dog-popup-image"
+                />
+              </div>
+              <div className="dog-popup-info">
+                <h3 className="dog-popup-name">{selectedDog.name}</h3>
+                <p className="dog-popup-location">📍 {selectedDog.location}</p>
+                <div className="dog-popup-actions">
+                  <button
+                    className="dog-popup-chat"
+                    onClick={() => handleChat(selectedDog.id)}
+                  >
+                    채팅하기
+                  </button>
+                  <button
+                    className="dog-popup-reject"
+                    onClick={() => handleReject(selectedDog.id)}
+                  >
+                    거절하기
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
