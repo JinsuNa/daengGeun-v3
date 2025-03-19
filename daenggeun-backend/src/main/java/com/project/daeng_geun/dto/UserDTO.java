@@ -25,7 +25,7 @@ public class UserDTO {
     private String petPersonality;
     private String image;
 
-    private static UserDTO fromEntity(User user) {
+    public static UserDTO fromEntity(User user) {
         return UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
