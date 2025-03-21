@@ -7,12 +7,14 @@ import com.project.daeng_geun.entity.User;
 import com.project.daeng_geun.repository.CommentRepository;
 import com.project.daeng_geun.repository.PostRepository;
 import com.project.daeng_geun.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -56,7 +58,22 @@ public class CommentService {
     }
 
     // 댓글 삭제
-    public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+
+        System.out.println("요청한 유저 ID: " + userId);
+        System.out.println("댓글 작성자 ID: " + comment.getUser().getId());
+
+        if (!comment.getUser().getId().equals(userId)) {
+            System.out.println("작성자가 아니므로 삭제 불가!");
+            throw new SecurityException("작성자만 삭제할 수 있습니다.");
+        }
+
+        System.out.println("작성자가 맞아서 삭제 진행!");
+        commentRepository.delete(comment);
     }
+
+
 }

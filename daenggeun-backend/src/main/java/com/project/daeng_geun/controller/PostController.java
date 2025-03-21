@@ -37,15 +37,19 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id,
+                                           @RequestParam Long userId) {
+        postService.deletePost(id, userId);
         return ResponseEntity.noContent().build();
     }
+
+
 
     @GetMapping("/category/{category}")
     public List<PostDTO> getPostsByCategory(@PathVariable String category) {
         return postService.getPostsByCategory(category);
     }
+
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<Boolean> toggleLike(@PathVariable Long postId, @RequestParam Long userId) {

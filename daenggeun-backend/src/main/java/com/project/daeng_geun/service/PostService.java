@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -72,8 +73,16 @@ public class PostService {
     }
 
     // 게시글 삭제
-    public void deletePost(Long id) {
-        postRepository.deleteById(id);
+    public void deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        // 작성자가 아닌 경우 삭제 불가
+        if (!post.getUser().getId().equals(userId)) {
+            throw new SecurityException("작성자만 삭제할 수 있습니다.");
+        }
+
+        postRepository.delete(post);
     }
 
     // 카테고리별 게시글 조회
