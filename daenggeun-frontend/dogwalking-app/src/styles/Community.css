@@ -140,7 +140,7 @@
   border-color: var(--primary-color);
 }
 
-/* 카드 스타일 */
+/* 카드 스타일
 .card-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -199,7 +199,299 @@
   padding: 1.25rem;
   border-top: 1px solid var(--border-color);
   background-color: rgba(0, 0, 0, 0.01);
+} */
+
+
+/* ✅ 리스트형 커뮤니티 스타일 */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
+
+.post-list-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+  text-decoration: none;
+  color: var(--foreground-color);
+
+  min-height: 200px; /* ✅ 높이 조정 */
+}
+
+.post-list-item:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-title {
+  font-size: 1.5rem; /* 더 크게 */
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.post-content-preview {
+  color: var(--muted-foreground-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 최대 두 줄 */
+  -webkit-box-orient: vertical;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--muted-foreground-color);
+  margin-top: auto;
+}
+
+.tags {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.post-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+
+.form-meta {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+
+
+/* 게시글 상세 페이지 스타일 */
+.post-detail-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.post-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 30px
+}
+
+.post-detail-icon {
+  width: 40px;
+  height: 40px;
+}
+
+
+.post-detail-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #e53880; /* 핑크색 */
+}
+
+/* .post-detail-subtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground-color);
+  margin-bottom: 2rem;
+} */
+
+
+
+/* 게시글 박스 */
+.post-detail-box {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 상단 row: 카테고리 + 작성자/작성일 */
+.post-header-row {
+  display: flex;
+  justify-content: space-between; /* 좌우 정렬 */
+  align-items: center;
+}
+
+.post-category {
+  background-color: #f06292;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+.post-author-date {
+  display: flex;
+  gap: 16px; /* 작성자, 작성일 간격 */
+  font-size: 14px;
+  color: #666;
+}
+
+.post-author-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.post-content {
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 150px;
+}
+
+.post-footer-row {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 20px;
+  font-size: 14px;
+  color: #999;
+}
+
+
+
+/* 버튼 영역 */
+.post-detail-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-outline {
+  border: 1px solid #f06292;
+  background-color: #fff;
+  color: #f06292;
+}
+
+.btn-outline:hover {
+  background-color: var(--secondary-color);
+}
+
+.btn-delete {
+  background-color: #e53880;
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background-color: #d32e73;
+}
+
+
+/* 커뮤니티 댓글  */
+.comment-section {
+  margin-top: 30px;
+}
+
+.comment-form {
+  position: relative; /* 버튼 위치 기준점 */
+  margin-bottom: 20px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  resize: none;
+  height: 120px; /* 기존보다 높이 증가 */
+  padding: 10px;
+  padding-right: 80px; /* 오른쪽 버튼 들어갈 공간 확보 */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+
+/* 등록 버튼을 textarea 안으로 넣기 */
+.comment-form button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.comment-form button:hover {
+  background-color: #ff8fa3;
+  color: #fff;
+}
+
+/* 댓글 리스트 */
+.comment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.comment-item {
+  border-top: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+/* 댓글 작성자 이름 핑크색 스타일 (테스트글과 통일) */
+.comment-item strong {
+  color: #ff8fa3;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+}
+
+.comment-meta button {
+  margin-left: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* 배지 스타일 */
 .badge {
@@ -321,6 +613,7 @@
 .form-input,
 .form-textarea,
 .form-select {
+
   width: 100%;
   padding: 0.75rem;
   border-radius: var(--radius);

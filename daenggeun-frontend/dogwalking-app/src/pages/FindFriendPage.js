@@ -89,7 +89,7 @@ const FindFriendPage = () => {
             <img
               src={currentProfiles[0]?.image || "/placeholder.svg"}
               alt={currentProfiles[0]?.userName}
-              className="profile-image"
+              className="profile-find-image"
             />
             <div className="profile-details">
               <p>견종: {currentProfiles[0]?.petBreed}</p>
@@ -163,7 +163,7 @@ const FindFriendPage = () => {
             <img
               src={currentProfiles[1]?.image || "/placeholder.svg"}
               alt={currentProfiles[1]?.userName}
-              className="profile-image"
+              className="profile-find-image"
             />
             <div className="profile-details">
               <p>견종: {currentProfiles[1]?.petBreed}</p>
