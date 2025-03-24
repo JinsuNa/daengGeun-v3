@@ -12,18 +12,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ChatDTO {
-    private Long id;
-    private User senderId;
-    private User receiverId;
-    private String message;
+    private Long senderId;    // User 전체가 아니라 ID만
+    private Long receiverId;
     private String status;
-    private LocalDateTime createdAt;
 
     public static ChatDTO from(Match match) {
         return ChatDTO.builder()
-                .senderId(match.getSender())
-                .receiverId(match.getReceiver())
+                .senderId(match.getSender().getId())       // ✔ ID만 넣기
+                .receiverId(match.getReceiver().getId())   // ✔ ID만 넣기
+                .status(match.getStatus())
                 .build();
     }
-
 }

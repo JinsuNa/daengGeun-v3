@@ -55,5 +55,5 @@ public class Post {
     }
 
     @Column(name = "like_count")
-    private int likeCount;
+    private Integer likeCount = 0;
 }

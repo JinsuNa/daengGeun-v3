@@ -108,7 +108,6 @@ public class MatchService {
         Match match = Match.builder()
                 .sender(sender)
                 .receiver(receiver)
-                .status("SENT") // 기본 상태 설정
                 .build();
 
         Match savedMatch = matchRepository.save(match);

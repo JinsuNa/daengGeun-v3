@@ -1,40 +1,37 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import "../styles/AuthPages.css";
-import { login, loginUser } from "../utils/api";
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import '../styles/AuthPages.css';
+import { login, loginUser } from '../utils/api';
 
 function LoginPage({ onLogin }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   // 상태 관리
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
-  const [activeTab, setActiveTab] = useState("login");
+  const [loginError, setLoginError] = useState('');
+  const [activeTab, setActiveTab] = useState('login');
 
   // URL 해시에 따라 초기 탭 설정
   useEffect(() => {
-    if (location.hash === "#signup") {
-      setActiveTab("signup");
+    if (location.hash === '#signup') {
+      setActiveTab('signup');
     }
   }, [location]);
 
   // 입력 필드 변경 핸들러
- const handleChange = (e) =>{
-  setFormData({...formData,[e.target.name]:e.target.value})
- }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    
-
-    // 로그인 에러 메시지 초기화
-    if (loginError) {
-      setLoginError("");
-    }
-
+  // 로그인 에러 메시지 초기화
+  if (loginError) {
+    setLoginError('');
+  }
 
   // 로그인 요청 핸들러
   const handleSubmit = async (e) => {
@@ -45,19 +42,19 @@ function LoginPage({ onLogin }) {
     try {
       const response = await loginUser(formData);
 
-      console.log("서버 응답 데이터 :", response);
-      
+      console.log('서버 응답 데이터 :', response);
+
       // 로그인 성공 시 로컬 스토리지에 사용자 정보 및 토큰 저장
-      localStorage.setItem("userId", response.userId);
-      localStorage.setItem("email", response.email);
-      localStorage.setItem("nickname", response.nickname);
+      localStorage.setItem('userId', response.userId);
+      localStorage.setItem('email', response.email);
+      localStorage.setItem('nickname', response.nickname);
 
       // 로그인 성공 후 메인페이지로 이동
-      navigate("/");
+      navigate('/');
       window.location.reload();
     } catch (error) {
       setLoginError(
-        error.message || "로그인에 실패했습니다. 다시 시도해주세요."
+        error.message || '로그인에 실패했습니다. 다시 시도해주세요.'
       );
     } finally {
       setIsLoading(false);
@@ -70,14 +67,14 @@ function LoginPage({ onLogin }) {
         <div className="auth-tabs">
           <div className="auth-tabs-list">
             <div
-              className={`auth-tab ${activeTab === "login" ? "active" : ""}`}
-              onClick={() => setActiveTab("login")}
+              className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+              onClick={() => setActiveTab('login')}
             >
               로그인
             </div>
             <div
-              className={`auth-tab ${activeTab === "islogin" ? "active" : ""}`}
-              onClick={() => navigate("/register")}
+              className={`auth-tab ${activeTab === 'islogin' ? 'active' : ''}`}
+              onClick={() => navigate('/register')}
             >
               회원가입
             </div>
@@ -86,7 +83,7 @@ function LoginPage({ onLogin }) {
 
         <div
           className={`auth-tab-content ${
-            activeTab === "login" ? "active" : ""
+            activeTab === 'login' ? 'active' : ''
           }`}
         >
           <div className="auth-card">
@@ -114,7 +111,7 @@ function LoginPage({ onLogin }) {
                     type="email"
                     id="email"
                     name="email"
-                    className={`form-input ${errors.email ? "error" : ""}`}
+                    className={`form-input ${errors.email ? 'error' : ''}`}
                     placeholder="이메일"
                     onChange={handleChange}
                     disabled={isLoading}
@@ -131,7 +128,7 @@ function LoginPage({ onLogin }) {
                     type="password"
                     id="password"
                     name="password"
-                    className={`form-input ${errors.password ? "error" : ""}`}
+                    className={`form-input ${errors.password ? 'error' : ''}`}
                     placeholder="비밀번호"
                     onChange={handleChange}
                     disabled={isLoading}
@@ -148,7 +145,7 @@ function LoginPage({ onLogin }) {
                   className="auth-button auth-button-primary"
                   disabled={isLoading}
                 >
-                  {isLoading ? "로그인 중..." : "로그인"}
+                  {isLoading ? '로그인 중...' : '로그인'}
                 </button>
               </div>
             </form>
