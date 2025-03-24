@@ -14,6 +14,9 @@ import java.util.Optional;
 public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findBySenderAndReceiverOrderByCreatedAtAsc(User Sender, User receiver);
 
+    @Query("SELECT m.receiver.id FROM Match m WHERE m.sender.id = :senderId")
+    List<Long> findReceiverIdsBySender(@Param("senderId") Long senderId);
+
     // 내가 보낸 요청
     List<Match> findBySender(User sender);
 

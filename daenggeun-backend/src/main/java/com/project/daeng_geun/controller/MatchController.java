@@ -29,9 +29,8 @@ public class MatchController {
     private final UserRepository userRepository;
 
     @GetMapping("/random")
-    public ResponseEntity<List<MatchDTO>> getRandomUsers() {
-        List<MatchDTO> users = matchService.getRandomUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<MatchDTO>> getRandomUsers(@RequestParam Long senderId) {
+        return ResponseEntity.ok(matchService.getRandomUsers(senderId));
     }
 
     @PostMapping("/like/{id}")

@@ -13,11 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,22 +26,23 @@ public class MatchService {
 
     //    user db에서 랜덤한 사용자 2명 가져오기
     @Transactional
-    public List<MatchDTO> getRandomUsers() {
+    public List<MatchDTO> getRandomUsers(Long senderId) {
+        // 1. senderId가 매칭 보낸 receiverId 목록 조회
+        List<Long> matchedReceiverIds = matchRepository.findReceiverIdsBySender(senderId);
 
-        List<User> selectedUsers = userRepository.findRandomUsers();
+        // 2. 자기 자신도 제외 목록에 추가
+        matchedReceiverIds.add(senderId);
+//        관리자 아이디 1번도 제외
+        matchedReceiverIds.add(1L);
 
-        selectedUsers = selectedUsers.stream()
-                .filter(user -> !previousUserIds.contains(user.getId()))
-                .collect(Collectors.toList());
+        // 3. 매칭하지 않은 유저 중 랜덤 2명 추출
+        List<User> randomUsers = userRepository.findRandomUsersExcluding(matchedReceiverIds);
 
-        if (selectedUsers.size() < 2) {
-            previousUserIds.clear();
-            selectedUsers = userRepository.findRandomUsers();
+        if (randomUsers.isEmpty()) {
+            return Collections.emptyList();
         }
-
-        selectedUsers.forEach(user -> previousUserIds.add(user.getId()));
-
-        return selectedUsers.stream()
+        // 4. DTO로 변환해서 반환
+        return randomUsers.stream()
                 .map(MatchDTO::fromEntity)
                 .collect(Collectors.toList());
     }
