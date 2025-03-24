@@ -1,12 +1,7 @@
 package com.project.daeng_geun.dto;
 
-import com.project.daeng_geun.entity.Pet;
 import com.project.daeng_geun.entity.User;
-import jakarta.persistence.Column;
 import lombok.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -18,23 +13,50 @@ public class UserDTO {
     private Long id;
     private String email;
     private String password;
+    private String repeatPassword;
     private String nickname;
     private String phone;
     private String address;
     private String location;
-    private List<PetDTO> pets;
+    private String petName;
+    private String petBreed;
+    private Integer petAge;
+    private String petGender;
+    private String petPersonality;
+    private String image;
+    private String profileImage;
 
-
-    private static UserDTO fromEntity(User user) {
+    public static UserDTO fromEntity(User user) {
         return UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .nickname(user.getNickname())
-                .phone(user.getPhone())
                 .address(user.getAddress())
                 .location(user.getLocation())
-                .pets(user.getPets().stream().map(PetDTO::fromEntity).collect(Collectors.toList()))
+                .image(user.getImage())
+                .petName(user.getPetName())
+                .petBreed(user.getPetBreed())
+                .petAge(user.getPetAge())
+                .petGender(user.getPetGender())
+                .petPersonality(user.getPetPersonality())
+                .build();
+    }
+
+    //    Dto -> entity 변환
+    public User toEntity() {
+        return User.builder()
+                .email(this.email)
+                .password(this.password)
+                .nickname(this.nickname)
+                .image(this.image)
+                .address(this.address)
+                .location(this.location)
+                .petName(this.petName)
+                .petBreed(this.petBreed)
+                .petAge(this.petAge)
+                .petGender(this.petGender)
+                .petPersonality(this.petPersonality)
                 .build();
     }
 }

@@ -1,7 +1,7 @@
 package com.project.daeng_geun.dto;
 
 
-import com.project.daeng_geun.entity.Pet;
+
 import com.project.daeng_geun.entity.User;
 import lombok.*;
 
@@ -14,28 +14,27 @@ public class MatchDTO {
 
     private Long id;
     private Long likeCount;
-    private String name;
-    private String breed;
-    private Integer age;
-    private String gender;
-    private String personality;
+    private String userName;
+    private String petBreed;
+    private Integer petAge;
+    private String petGender;
+    private String petPersonality;
     private String image;
     private String location;
 
 
     public static MatchDTO fromEntity(User user)
     {
-        Pet pet = user.getPet();
 
         return MatchDTO.builder()
                 .id(user.getId())
                 .likeCount(user.getLikeCount())
-                .name(pet.getName())
-                .breed(pet.getBreed())
-                .age(pet.getAge())
-                .gender(pet.getGender())
-                .personality(pet.getPersonality())
-                .image(pet.getImage())
+                .userName(user.getNickname())
+                .petBreed(user.getPetBreed())
+                .petAge(user.getPetAge())
+                .petGender(user.getPetGender())
+                .petPersonality(user.getPetPersonality())
+                .image(user.getImage())
                 .location(user.getLocation())
                 .build();
     }

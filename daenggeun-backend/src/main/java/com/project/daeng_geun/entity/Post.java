@@ -18,10 +18,10 @@ import lombok.*;
 @AllArgsConstructor
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // 자동으로 1씩 증가
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)                   // 게시글 작성한 사용자
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -36,15 +36,8 @@ public class Post {
     private Integer viewCount = 0;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>(); // 해당 게시글에 달린 댓글들
 
-    @ManyToMany
-    @JoinTable(
-            name = "post_tags",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags = new HashSet<>();
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -60,4 +53,7 @@ public class Post {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Column(name = "like_count")
+    private Integer likeCount = 0;
 }

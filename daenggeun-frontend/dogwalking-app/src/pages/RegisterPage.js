@@ -1,102 +1,129 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import "../styles/AuthPages.css"
-import { register, checkUsername, checkEmail, uploadFile } from "../utils/api"
-import { isValidUsername, isValidEmail, isValidPassword, doPasswordsMatch, isValidAge } from "../utils/validation"
-
-// 주소 검색 모달 컴포넌트
-function AddressModal({ isOpen, onClose, onComplete }) {
-  // 실제 구현 시에는 Daum 우편번호 API 연동
-  // 임시 구현
-  const [address, setAddress] = useState("")
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (address.trim()) {
-      onComplete(address)
-      onClose()
-    }
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <div className="modal-backdrop">
-      <div className="modal">
-        <div className="modal-header">
-          <h3 className="modal-title">주소 검색</h3>
-          <button className="modal-close" onClick={onClose}>
-            &times;
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <p className="form-hint">실제 구현 시에는 Daum 우편번호 API가 연동됩니다.</p>
-            <div className="form-group">
-              <label htmlFor="address" className="form-label">
-                주소 입력
-              </label>
-              <input
-                type="text"
-                id="address"
-                className="form-input"
-                placeholder="예: 서울 강남구 테헤란로 123"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="auth-button auth-button-outline" onClick={onClose}>
-              취소
-            </button>
-            <button type="submit" className="auth-button auth-button-primary">
-              확인
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/AuthPages.css";
+import { register, uploadFile, checkUsername, checkEmail } from "../utils/api";
+import {
+  isValidUsername,
+  isValidEmail,
+  isValidPassword,
+  doPasswordsMatch,
+  isValidAge,
+} from "../utils/validation";
+import axios from "axios";
 
 function RegisterPage({ onLogin }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // 상태 관리
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
-    nickname: "",
+    repeatPassword: "",
+    username: "",
     phone: "",
     address: "",
     location: "",
-    pets: [],
-});
-const [petData, setPetData] = useState({
-  name: "",
-  age: "",
-  gender: "Male",
-  breed: "",
-  personality: "",
-});
+    name: "",
+    age: "",
+    gender: "Male",
+    breed: "",
+    personality: "",
+  });
+
   const [validation, setValidation] = useState({
-    
     email: { isChecking: false, isValid: false, isChecked: false, message: "" },
-    username: { isChecking: false, isValid: false, isChecked: false, message: "" },
+    username: {
+      isChecking: false,
+      isValid: false,
+      isChecked: false,
+      message: "",
+    },
     password: { isValid: false, message: "" },
-    confirmPassword: { isValid: false, message: "" },
+    repeatPassword: { isValid: false, message: "" },
     formIsValid: false,
-  })
+  });
+  const [image, setimage] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState("");
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
-  const [errors, setErrors] = useState({})
-  const [isLoading, setIsLoading] = useState(false)
-  const [registerError, setRegisterError] = useState("")
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
+  const [formValidation, setFormValidation] = useState({
+    username: {
+      isChecking: false,
+      isValid: false,
+      isChecked: false,
+      message: "",
+    },
+    email: { isChecking: false, isValid: false, isChecked: false, message: "" },
+  });
 
+  // 입력 필드 변경 핸들러
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // 닉네임이 바뀌면 중복 확인 상태 초기화
+    setFormValidation((prev) => ({
+      ...prev,
+      [e.target.name]: {
+        isChecked: false,
+        isValid: false,
+        isChecking: false, // ⬅ 변경하면 다시 입력 가능!
+        message: "",
+      },
+    }));
+  };
+
+  // 회원가입 에러 메시지 초기화
+  if (registerError) {
+    setRegisterError("");
+  }
+
+  // ✅ 폼 제출 핸들러 (Spring Boot API 연동)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // 이메일 또는 닉네임이 확인되지 않았거나, 유효하지 않으면 회원가입 불가
+    if (!formValidation.email.isValid || !formValidation.username.isValid) {
+      setRegisterError("이메일과 닉네임 중복 확인을 완료해야 합니다.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // FormData 생성 (JSON + 이미지 함께 전송)
+      const formDataToSend = new FormData();
+
+      // JSON 데이터를 Blob 형태로 변환 후 추가
+      const userBlob = new Blob([JSON.stringify(formData)], {
+        type: "application/json",
+      });
+      formDataToSend.append("user", userBlob);
+
+      // 프로필 이미지 추가 (선택 사항)
+      if (image) {
+        formDataToSend.append("image", image);
+      }
+
+      // 회원가입 API 호출
+      const response = await register(formDataToSend);
+
+      console.log("🔹 회원가입 응답 데이터:", response); // 확인용 로그
+      console.log("🔹 응답 success 값:", response.success);
+
+      navigate("/login");
+    } catch (error) {
+      setRegisterError(
+        error.message || "회원가입에 실패했습니다. 다시 시도해주세요."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 비밀번호 check validation 시작
   // 비밀번호 유효성 검사
   useEffect(() => {
     if (formData.password) {
@@ -104,361 +131,179 @@ const [petData, setPetData] = useState({
         setValidation((prev) => ({
           ...prev,
           password: { isValid: true, message: "사용 가능한 비밀번호입니다." },
-        }))
+        }));
       } else {
         setValidation((prev) => ({
           ...prev,
-          password: { isValid: false, message: "비밀번호는 6~12자리로 입력해주세요." },
-        }))
+          password: {
+            isValid: false,
+            message: "비밀번호는 6~12자리로 입력해주세요.",
+          },
+        }));
       }
     } else {
       setValidation((prev) => ({
         ...prev,
         password: { isValid: false, message: "" },
-      }))
+      }));
     }
 
     // 비밀번호 확인 유효성 검사
-    if (formData.confirmPassword) {
-      if (doPasswordsMatch(formData.password, formData.confirmPassword)) {
+    if (formData.repeatPassword) {
+      if (doPasswordsMatch(formData.password, formData.repeatPassword)) {
         setValidation((prev) => ({
           ...prev,
-          confirmPassword: { isValid: true, message: "비밀번호가 일치합니다." },
-        }))
+          repeatPassword: { isValid: true, message: "비밀번호가 일치합니다." },
+        }));
       } else {
         setValidation((prev) => ({
           ...prev,
-          confirmPassword: { isValid: false, message: "비밀번호가 일치하지 않습니다." },
-        }))
+          repeatPassword: {
+            isValid: false,
+            message: "비밀번호가 일치하지 않습니다.",
+          },
+        }));
       }
     } else {
       setValidation((prev) => ({
         ...prev,
-        confirmPassword: { isValid: false, message: "" },
-      }))
+        repeatPassword: { isValid: false, message: "" },
+      }));
     }
-  }, [formData.password, formData.confirmPassword])
+  }, [formData.password, formData.repeatPassword]);
 
-  // 전체 폼 유효성 검사
-  useEffect(() => {
-    const isFormValid =
-      validation.username.isValid &&
-      validation.email.isValid &&
-      validation.password.isValid &&
-      validation.confirmPassword.isValid &&
-      formData.petName.trim() !== "" &&
-      formData.petAge.trim() !== "" &&
-      formData.petBreed.trim() !== "" &&
-      formData.address.trim() !== ""
+  // 비밀번호 check validation 끝
 
-    setValidation((prev) => ({
-      ...prev,
-      formIsValid: isFormValid,
-    }))
-  }, [
-    validation.username.isValid,
-    validation.email.isValid,
-    validation.password.isValid,
-    validation.confirmPassword.isValid,
-    formData.petName,
-    formData.petAge,
-    formData.petBreed,
-    formData.address,
-  ])
-
-  // 입력 필드 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
-
-    // 에러 메시지 초기화
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      })
-    }
-
-    // 아이디나 이메일 변경 시 중복 확인 상태 초기화
-    if (name === "username" || name === "email") {
-      setValidation((prev) => ({
-        ...prev,
-        [name]: {
-          isChecking: false,
-          isValid: false,
-          isChecked: false,
-          message: "",
-        },
-      }))
-    }
-
-    // 회원가입 에러 메시지 초기화
-    if (registerError) {
-      setRegisterError("")
-    }
-  }
-
-  // 셀렉트 변경 핸들러
-  const handleSelectChange = (name, value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
-  }
-
-  // 주소 선택 핸들러
-  const handleAddressComplete = (address) => {
-    // 주소에서 구 정보 추출 (예: '서울 강남구 테헤란로' -> '강남구')
-    const districtMatch = address.match(/([가-힣]+구)/)
-    const district = districtMatch ? districtMatch[1] : ""
-
-    setFormData((prev) => ({
-      ...prev,
-      address: address,
-      location: district, // 구 정보 자동 설정
-    }))
-  }
-
-  // 아이디 중복 확인 핸들러
+  //  닉네임 validation 시작
   const handleCheckUsername = async () => {
     if (!formData.username.trim()) {
-      setValidation((prev) => ({
+      setFormValidation((prev) => ({
         ...prev,
         username: {
-          isChecking: false,
-          isValid: false,
           isChecked: true,
-          message: "아이디를 입력해주세요.",
+          isValid: false,
+          isChecking: false,
+          message: "닉네임을 입력하세요.",
         },
-      }))
-      return
+      }));
+      return;
     }
 
-    if (!isValidUsername(formData.username)) {
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "아이디는 3~20자의 영문, 숫자, 한글만 가능합니다.",
-        },
-      }))
-      return
-    }
+    setFormValidation((prev) => ({
+      ...prev,
+      username: { ...prev.username, isChecking: true },
+    }));
 
-    setValidation((prev) => ({
+    const isAvailable = await checkUsername(formData.username); // ✅ API 호출
+
+    setFormValidation((prev) => ({
       ...prev,
       username: {
-        isChecking: true,
-        isValid: false,
-        isChecked: false,
-        message: "확인 중...",
+        isChecked: true,
+        isValid: isAvailable, // true면 사용 가능, false면 중복
+        isChecking: false,
+        message: isAvailable
+          ? "사용 가능한 닉네임입니다."
+          : "이미 사용 중인 닉네임입니다.",
       },
-    }))
+    }));
+  };
 
-    try {
-      // 아이디 중복 확인 API 호출
-      const response = await checkUsername(formData.username)
-
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: response.available,
-          isChecked: true,
-          message: response.message,
-        },
-      }))
-    } catch (error) {
-      setValidation((prev) => ({
-        ...prev,
-        username: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "중복 확인 중 오류가 발생했습니다.",
-        },
-      }))
-    }
-  }
-
-  // 이메일 중복 확인 핸들러
+  // 이메일 중복 확인
   const handleCheckEmail = async () => {
-    if (!formData.email.trim() || !isValidEmail(formData.email)) {
-      setValidation((prev) => ({
+    const email = formData.email.trim();
+
+    // 이메일이 비어 있는 경우
+    if (!email) {
+      setFormValidation((prev) => ({
         ...prev,
         email: {
-          isChecking: false,
-          isValid: false,
           isChecked: true,
-          message: "유효한 이메일을 입력해주세요.",
+          isValid: false,
+          isChecking: false,
+          message: "이메일을 입력하세요.",
         },
-      }))
-      return
+      }));
+      return;
     }
 
-    setValidation((prev) => ({
+    // 이메일 형식이 올바르지 않은 경우
+    if (!isValidEmail(email)) {
+      setFormValidation((prev) => ({
+        ...prev,
+        email: {
+          isChecked: true,
+          isValid: false,
+          isChecking: false,
+          message: "유효한 이메일 주소를 입력해주세요.",
+        },
+      }));
+      return;
+    }
+
+    setFormValidation((prev) => ({
+      ...prev,
+      email: { ...prev.email, isChecking: true },
+    }));
+
+    // 이메일 중복 확인 API 호출
+    const isAvailable = await checkEmail(email);
+
+    setFormValidation((prev) => ({
       ...prev,
       email: {
-        isChecking: true,
-        isValid: false,
-        isChecked: false,
-        message: "확인 중...",
+        isChecked: true,
+        isValid: isAvailable,
+        isChecking: false,
+        message: isAvailable
+          ? "사용 가능한 이메일입니다."
+          : "이미 사용 중인 이메일입니다.",
       },
-    }))
+    }));
+  };
 
-    try {
-      // 이메일 중복 확인 API 호출
-      const response = await checkEmail(formData.email)
+  // 이메일 및 닉네임 validation 끝
 
-      setValidation((prev) => ({
-        ...prev,
-        email: {
-          isChecking: false,
-          isValid: response.available,
-          isChecked: true,
-          message: response.message,
-        },
-      }))
-    } catch (error) {
-      setValidation((prev) => ({
-        ...prev,
-        email: {
-          isChecking: false,
-          isValid: false,
-          isChecked: true,
-          message: "중복 확인 중 오류가 발생했습니다.",
-        },
-      }))
-    }
-  }
+  // 카카오 다음 api 주소 시작
+  // ✅ 카카오 우편번호 API 자동 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src =
+      "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-  // 파일 입력 핸들러
-  const handleFileChange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
-      try {
-        // 파일 업로드 API 호출
-        const response = await uploadFile(file, "profile")
+  // ✅ 주소 검색 실행 (버튼 클릭 시 바로 실행)
+  const handleAddressSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        const fullAddress = data.roadAddress || data.jibunAddress;
+        const districtMatch = fullAddress.match(/([가-힣]+구)/);
+        const district = districtMatch ? districtMatch[1] : "";
 
         setFormData((prev) => ({
           ...prev,
-          profilePicture: response.url,
-        }))
-      } catch (error) {
-        console.error("파일 업로드 실패:", error)
-        // 에러 처리
-      }
+          address: fullAddress,
+          location: district, // 구 정보 자동 설정
+        }));
+      },
+    }).open();
+  };
+  // 카카오 다음 api 주소 끝
+
+  // 이미지 s3업로드 시작
+  // 파일 입력 핸들러
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setimage(e.target.files[0]);
     }
-  }
-
-  // 폼 제출 핸들러
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    // 폼 유효성 검사
-    if (!validation.formIsValid) {
-      // 중복 확인이 되지 않은 경우
-      if (!validation.username.isChecked) {
-        setErrors((prev) => ({
-          ...prev,
-          username: "아이디 중복 확인을 해주세요.",
-        }))
-      }
-
-      if (!validation.email.isChecked) {
-        setErrors((prev) => ({
-          ...prev,
-          email: "이메일 중복 확인을 해주세요.",
-        }))
-      }
-
-      // 비밀번호 유효성 검사
-      if (!validation.password.isValid) {
-        setErrors((prev) => ({
-          ...prev,
-          password: "비밀번호는 6~12자리로 입력해주세요.",
-        }))
-      }
-
-      // 비밀번호 일치 확인
-      if (!validation.confirmPassword.isValid) {
-        setErrors((prev) => ({
-          ...prev,
-          confirmPassword: "비밀번호가 일치하지 않습니다.",
-        }))
-      }
-
-      // 반려견 정보 확인
-      if (!formData.petName) {
-        setErrors((prev) => ({
-          ...prev,
-          petName: "반려견 이름을 입력해주세요.",
-        }))
-      }
-
-      if (!formData.petAge) {
-        setErrors((prev) => ({
-          ...prev,
-          petAge: "반려견 나이를 입력해주세요.",
-        }))
-      } else if (!isValidAge(formData.petAge)) {
-        setErrors((prev) => ({
-          ...prev,
-          petAge: "유효한 나이를 입력해주세요.",
-        }))
-      }
-
-      if (!formData.petBreed) {
-        setErrors((prev) => ({
-          ...prev,
-          petBreed: "견종을 입력해주세요.",
-        }))
-      }
-
-      // 주소 확인
-      if (!formData.address) {
-        setErrors((prev) => ({
-          ...prev,
-          address: "주소를 입력해주세요.",
-        }))
-      }
-
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      // 회원가입 API 호출
-      const response = await register(formData)
-
-      // 회원가입 성공 시 처리
-      if (response.success) {
-        // 로컬 스토리지에 사용자 정보 및 토큰 저장
-        localStorage.setItem("user", JSON.stringify(response.user))
-        localStorage.setItem("token", response.token)
-
-        // 부모 컴포넌트에 로그인 상태 전달
-        if (onLogin) {
-          onLogin(response.user, response.token)
-        }
-
-        // 홈페이지로 이동
-        navigate("/")
-      }
-    } catch (error) {
-      // 회원가입 실패 시 에러 메시지 표시
-      setRegisterError(error.message || "회원가입에 실패했습니다. 다시 시도해주세요.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  };
+  // 이미지 s3업로드 끝
 
   return (
     <div className="auth-page">
@@ -466,81 +311,19 @@ const [petData, setPetData] = useState({
         <div className="auth-card">
           <div className="auth-card-header">
             <h2 className="auth-card-title">회원가입</h2>
-            <p className="auth-card-description">댕근의 새로운 회원이 되어보세요.</p>
+            <p className="auth-card-description">
+              댕근의 새로운 회원이 되어보세요.
+            </p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-card-content">
               {/* 회원가입 에러 메시지 */}
-              {registerError && <div className="auth-alert auth-alert-error">{registerError}</div>}
-
-              {/* 아이디 입력 필드 */}
-              <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  아이디
-                </label>
-                <div className="address-input-group">
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    className={`form-input ${
-                      validation.username.isChecked && (validation.username.isValid ? "valid" : "error")
-                    }`}
-                    placeholder="사용자 아이디"
-                    value={formData.username}
-                    onChange={handleChange}
-                    disabled={isLoading || validation.username.isChecking}
-                  />
-                  <button
-                    type="button"
-                    className="address-search-button"
-                    onClick={handleCheckUsername}
-                    disabled={isLoading || validation.username.isChecking}
-                  >
-                    {validation.username.isChecking ? "확인 중..." : "중복확인"}
-                  </button>
+              {registerError && (
+                <div className="auth-alert auth-alert-error">
+                  {registerError}
                 </div>
-                {validation.username.message && (
-                  <p className={`${validation.username.isValid ? "form-success" : "form-error"}`}>
-                    {validation.username.message}
-                  </p>
-                )}
-                {errors.username && <p className="form-error">{errors.username}</p>}
-              </div>
-
-              {/* 프로필 이미지 업로드 */}
-              <div className="form-group">
-                <label htmlFor="profilePicture" className="form-label">
-                  프로필 사진
-                </label>
-                <div className="profile-upload">
-                  <div className="profile-image-preview">
-                    {formData.profilePicture ? (
-                      <img
-                        src={formData.profilePicture || "/placeholder.svg"}
-                        alt="프로필 미리보기"
-                        className="profile-image"
-                      />
-                    ) : (
-                      <span className="profile-placeholder">👤</span>
-                    )}
-                  </div>
-                  <div className="profile-upload-input">
-                    <input
-                      type="file"
-                      id="profilePicture"
-                      name="profilePicture"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      disabled={isLoading}
-                      className="form-input"
-                    />
-                    <p className="profile-upload-hint">JPG, PNG 형식의 이미지를 업로드해주세요.</p>
-                  </div>
-                </div>
-              </div>
-
+              )}
               {/* 이메일 입력 필드 */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
@@ -552,28 +335,90 @@ const [petData, setPetData] = useState({
                     id="email"
                     name="email"
                     className={`form-input ${
-                      validation.email.isChecked && (validation.email.isValid ? "valid" : "error")
+                      formValidation.email.isChecked &&
+                      (formValidation.email.isValid ? "valid" : "error")
                     }`}
                     placeholder="name@example.com"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled={isLoading || validation.email.isChecking}
+                    disabled={formValidation.email.isChecking}
                   />
                   <button
                     type="button"
                     className="address-search-button"
-                    onClick={handleCheckEmail}
-                    disabled={isLoading || validation.email.isChecking}
+                    onClick={handleCheckEmail} // 중복 확인 버튼에 이벤트 추가
+                    disabled={
+                      formValidation.email.isChecking ||
+                      formValidation.email.isValid
+                    } // 사용 가능이면 버튼 비활성화
                   >
-                    {validation.email.isChecking ? "확인 중..." : "중복확인"}
+                    {formValidation.email.isChecking
+                      ? "확인 중..."
+                      : "중복 확인"}
                   </button>
                 </div>
-                {validation.email.message && (
-                  <p className={`${validation.email.isValid ? "form-success" : "form-error"}`}>
-                    {validation.email.message}
+
+                {/* 이메일 중복 확인 결과 메시지 */}
+                {formValidation.email.message && (
+                  <p
+                    className={`${
+                      formValidation.email.isValid
+                        ? "form-success"
+                        : "form-error"
+                    }`}
+                  >
+                    {formValidation.email.message}
                   </p>
                 )}
+
+                {/* 에러 메시지 */}
                 {errors.email && <p className="form-error">{errors.email}</p>}
+              </div>
+              {/* 닉네임 입력 필드 */}
+              <div className="form-group">
+                <label htmlFor="username" className="form-label">
+                  닉네임
+                </label>
+                <div className="address-input-group">
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    className={`form-input ${
+                      formValidation.username.isChecked &&
+                      (formValidation.username.isValid ? "valid" : "error")
+                    }`}
+                    placeholder="사용자 닉네임"
+                    value={formData.username}
+                    onChange={handleChange}
+                    disabled={formValidation.username.isChecking}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCheckUsername}
+                    className="address-search-button"
+                    disabled={
+                      formValidation.username.isChecking ||
+                      formValidation.username.isValid
+                    } // 사용 가능이면 버튼 비활성화
+                  >
+                    {formValidation.username.isValid
+                      ? "사용 가능"
+                      : "중복 확인"}
+                  </button>
+                </div>
+                {/* 닉네임 중복 확인 결과 메시지 */}
+                {formValidation.username.message && (
+                  <p
+                    className={`${
+                      formValidation.email.isValid
+                        ? "form-success"
+                        : "form-error"
+                    }`}
+                  >
+                    {formValidation.username.message}
+                  </p>
+                )}
               </div>
 
               {/* 비밀번호 입력 필드 */}
@@ -585,47 +430,66 @@ const [petData, setPetData] = useState({
                   type="password"
                   id="password"
                   name="password"
-                  className={`form-input ${formData.password && (validation.password.isValid ? "valid" : "error")}`}
+                  className={`form-input ${
+                    formData.password &&
+                    (validation.password.isValid ? "valid" : "error")
+                  }`}
                   placeholder="비밀번호"
                   value={formData.password}
                   onChange={handleChange}
                   disabled={isLoading}
                 />
                 {formData.password && (
-                  <p className={`${validation.password.isValid ? "form-success" : "form-error"}`}>
+                  <p
+                    className={`${
+                      validation.password.isValid
+                        ? "form-success"
+                        : "form-error"
+                    }`}
+                  >
                     {validation.password.message}
                   </p>
                 )}
                 <p className="form-hint">비밀번호는 6~12자리로 입력해주세요.</p>
-                {errors.password && <p className="form-error">{errors.password}</p>}
+                {errors.password && (
+                  <p className="form-error">{errors.password}</p>
+                )}
               </div>
 
               {/* 비밀번호 확인 필드 */}
               <div className="form-group">
-                <label htmlFor="confirmPassword" className="form-label">
+                <label htmlFor="repeatPassword" className="form-label">
                   비밀번호 확인
                 </label>
                 <input
                   type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="repeatPassword"
+                  name="repeatPassword"
                   className={`form-input ${
-                    formData.confirmPassword && (validation.confirmPassword.isValid ? "valid" : "error")
+                    formData.repeatPassword &&
+                    (validation.repeatPassword.isValid ? "valid" : "error")
                   }`}
                   placeholder="비밀번호 확인"
-                  value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {formData.confirmPassword && (
-                  <p className={`${validation.confirmPassword.isValid ? "form-success" : "form-error"}`}>
-                    {validation.confirmPassword.message}
+                {formData.repeatPassword && (
+                  <p
+                    className={`${
+                      validation.repeatPassword.isValid
+                        ? "form-success"
+                        : "form-error"
+                    }`}
+                  >
+                    {validation.repeatPassword.message}
                   </p>
                 )}
-                {errors.confirmPassword && <p className="form-error">{errors.confirmPassword}</p>}
+                {errors.repeatPassword && (
+                  <p className="form-error">{errors.repeatPassword}</p>
+                )}
               </div>
 
-              {/* 주소 검색 필드 */}
+              {/* 주소 입력 필드 */}
               <div className="form-group">
                 <label htmlFor="address" className="form-label">
                   주소
@@ -639,24 +503,58 @@ const [petData, setPetData] = useState({
                     placeholder="주소 검색을 클릭하세요"
                     value={formData.address}
                     readOnly
-                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     className="address-search-button"
-                    onClick={() => setIsAddressModalOpen(true)}
-                    disabled={isLoading}
+                    onClick={handleAddressSearch}
                   >
                     🔍 검색
                   </button>
                 </div>
-                {formData.location && <p className="form-hint">지역: {formData.location} (자동으로 설정되었습니다)</p>}
-                <p className="form-hint">주소는 산책 친구를 찾는데 사용됩니다. 정확한 주소를 입력해주세요.</p>
-                {errors.address && <p className="form-error">{errors.address}</p>}
+                {formData.location && (
+                  <p className="form-hint">
+                    지역: {formData.location} (자동 설정됨)
+                  </p>
+                )}
               </div>
 
               <div className="pet-info-section">
                 <h3 className="pet-info-title">반려견 정보</h3>
+                {/* 반려견 이미지 업로드 */}
+                <div className="form-group">
+                  <label htmlFor="image" className="form-label">
+                    반려견 사진
+                  </label>
+                  <div className="profile-upload">
+                    <div className="profile-image-preview">
+                      {formData.image ? (
+                        <img
+                          src={formData.image || "/placeholder.svg"}
+                          alt="프로필 미리보기"
+                          className="profile-image"
+                        />
+                      ) : (
+                        <span className="profile-placeholder">👤</span>
+                      )}
+                    </div>
+                    <div className="profile-upload-input">
+                      <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        disabled={isLoading}
+                        className="form-input"
+                      />
+                      <p className="profile-upload-hint">
+                        JPG, PNG 형식의 이미지를 업로드해주세요.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="form-group">
                   <label htmlFor="petName" className="form-label">
                     반려견 이름
@@ -671,7 +569,9 @@ const [petData, setPetData] = useState({
                     onChange={handleChange}
                     disabled={isLoading}
                   />
-                  {errors.petName && <p className="form-error">{errors.petName}</p>}
+                  {errors.petName && (
+                    <p className="form-error">{errors.petName}</p>
+                  )}
                 </div>
 
                 <div className="form-row">
@@ -689,7 +589,9 @@ const [petData, setPetData] = useState({
                       onChange={handleChange}
                       disabled={isLoading}
                     />
-                    {errors.petAge && <p className="form-error">{errors.petAge}</p>}
+                    {errors.petAge && (
+                      <p className="form-error">{errors.petAge}</p>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -701,7 +603,6 @@ const [petData, setPetData] = useState({
                       name="petGender"
                       className="form-input"
                       value={formData.petGender}
-                      onChange={(e) => handleSelectChange("petGender", e.target.value)}
                       disabled={isLoading}
                     >
                       <option value="남아">남아</option>
@@ -724,7 +625,9 @@ const [petData, setPetData] = useState({
                     onChange={handleChange}
                     disabled={isLoading}
                   />
-                  {errors.petBreed && <p className="form-error">{errors.petBreed}</p>}
+                  {errors.petBreed && (
+                    <p className="form-error">{errors.petBreed}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -743,20 +646,17 @@ const [petData, setPetData] = useState({
                   />
                 </div>
               </div>
-
-              {/* 폼 유효성 상태 표시 */}
-              {!validation.formIsValid && formData.username && formData.email && formData.password && (
-                <div className="auth-alert auth-alert-error">
-                  회원가입을 완료하려면 모든 필수 정보를 입력하고 중복 확인을 완료해주세요.
-                </div>
-              )}
             </div>
 
             <div className="auth-card-footer">
               <button
                 type="submit"
                 className="auth-button auth-button-primary"
-                disabled={isLoading || !validation.formIsValid}
+                disabled={
+                  isLoading ||
+                  !formValidation.email.isValid ||
+                  !formValidation.username.isValid
+                }
               >
                 {isLoading ? "가입 중..." : "회원가입"}
               </button>
@@ -771,16 +671,8 @@ const [petData, setPetData] = useState({
           </form>
         </div>
       </div>
-
-      {/* 주소 검색 모달 */}
-      <AddressModal
-        isOpen={isAddressModalOpen}
-        onClose={() => setIsAddressModalOpen(false)}
-        onComplete={handleAddressComplete}
-      />
     </div>
-  )
+  );
 }
 
-export default RegisterPage
-
+export default RegisterPage;

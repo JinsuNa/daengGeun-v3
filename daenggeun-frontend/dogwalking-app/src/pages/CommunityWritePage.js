@@ -1,227 +1,147 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import "../styles/Community.css"
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/Community.css';
+import axios from 'axios';
 
 function CommunityWritePage({ isAuthenticated }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  // 상태 관리
+  // 상태 관리 (태그 필드 삭제!)
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    category: "",
-    tags: "",
-  })
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    category: '자유게시판',
+    title: '',
+    content: '',
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 인증 상태 확인
   useEffect(() => {
-    // 로그인하지 않은 사용자는 로그인 페이지로 리디렉션
     if (!isAuthenticated) {
-      navigate("/login", { state: { from: "/community/write" } })
+      navigate('/login', { state: { from: '/community/write' } });
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate]);
 
   // 입력 필드 변경 핸들러
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({
-      ...formData,
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
       [name]: value,
-    })
-
-    // 에러 메시지 초기화
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      })
-    }
-  }
-
-  // 카테고리 변경 핸들러
-  const handleCategoryChange = (e) => {
-    setFormData({
-      ...formData,
-      category: e.target.value,
-    })
-
-    // 에러 메시지 초기화
-    if (errors.category) {
-      setErrors({
-        ...errors,
-        category: "",
-      })
-    }
-  }
+    }));
+  };
 
   // 폼 제출 핸들러
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // 유효성 검사
-    const newErrors = {}
+    setIsSubmitting(true);
 
-    if (!formData.title.trim()) {
-      newErrors.title = "제목을 입력해주세요."
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
     }
 
-    if (!formData.category) {
-      newErrors.category = "카테고리를 선택해주세요."
-    }
-
-    if (!formData.content.trim()) {
-      newErrors.content = "내용을 입력해주세요."
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
-    }
-
-    setIsSubmitting(true)
-
-    // 실제 구현 시에는 API 호출로 대체
-    // 예시:
-    /*
-    const submitPost = async () => {
-      try {
-        const response = await axios.post('http://localhost:8080/api/posts', formData, {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/posts?userId=${userId}`,
+        formData,
+        {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
           },
-        });
-        
-        if (response.data.success) {
-          navigate('/community');
+          withCredentials: true,
         }
-      } catch (error) {
-        console.error('게시글 등록 실패:', error);
-        setErrors({
-          submit: '게시글 등록에 실패했습니다. 다시 시도해주세요.',
-        });
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-    
-    submitPost();
-    */
+      );
 
-    // 임시 구현 (백엔드 연동 전까지만 사용)
-    setTimeout(() => {
-      setIsSubmitting(false)
-      navigate("/community")
-    }, 1000)
-  }
+      if (response.status === 200 || response.status === 201) {
+        alert('게시글 등록 성공!');
+        navigate('/community');
+      } else {
+        throw new Error('게시글 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글 등록 실패:', error);
+      alert('게시글 등록에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="page-container">
-      <div className="form-container">
-        <h1 className="page-title">글쓰기</h1>
-        <p className="page-description">커뮤니티에 새 글을 작성합니다</p>
-
-        <div className="card">
-          <form onSubmit={handleSubmit}>
-            <div className="card-content">
-              {/* 제목 입력 필드 */}
-              <div className="form-group">
-                <label htmlFor="title" className="form-label">
-                  제목
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  className="form-input"
-                  placeholder="제목을 입력하세요"
-                  value={formData.title}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                />
-                {errors.title && <p className="form-error">{errors.title}</p>}
-              </div>
-
-              {/* 카테고리 선택 필드 */}
-              <div className="form-group">
-                <label htmlFor="category" className="form-label">
-                  카테고리
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  className="form-select"
-                  value={formData.category}
-                  onChange={handleCategoryChange}
-                  disabled={isSubmitting}
-                >
-                  <option value="">카테고리를 선택하세요</option>
-                  <option value="소모임">소모임</option>
-                  <option value="펫시터">펫시터</option>
-                  <option value="분실">강아지 분실</option>
-                  <option value="자유">자유게시판</option>
-                </select>
-                {errors.category && <p className="form-error">{errors.category}</p>}
-              </div>
-
-              {/* 내용 입력 필드 */}
-              <div className="form-group">
-                <label htmlFor="content" className="form-label">
-                  내용
-                </label>
-                <textarea
-                  id="content"
-                  name="content"
-                  className="form-textarea"
-                  placeholder="내용을 입력하세요"
-                  value={formData.content}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                ></textarea>
-                {errors.content && <p className="form-error">{errors.content}</p>}
-              </div>
-
-              {/* 태그 입력 필드 */}
-              <div className="form-group">
-                <label htmlFor="tags" className="form-label">
-                  태그
-                </label>
-                <input
-                  type="text"
-                  id="tags"
-                  name="tags"
-                  className="form-input"
-                  placeholder="태그를 입력하세요 (쉼표로 구분)"
-                  value={formData.tags}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                />
-                <p className="form-hint">예: 소형견, 강남구, 산책모임</p>
-              </div>
-
-              {/* 제출 에러 메시지 */}
-              {errors.submit && <div className="auth-alert auth-alert-error">{errors.submit}</div>}
-            </div>
-
-            <div className="card-footer">
-              <div className="form-footer">
-                <button type="button" className="btn btn-outline" onClick={() => navigate(-1)} disabled={isSubmitting}>
-                  취소
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                  {isSubmitting ? "저장 중..." : "저장하기"}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+    <div className="write-page">
+      <div className="writeImage">
+        <img src="/favicon.png" alt="" />
+        <h1 className="write-title">글쓰기</h1>
       </div>
+
+      <p className="write-subtitle">커뮤니티에 새 글을 작성합니다</p>
+
+      <form onSubmit={handleSubmit} className="write-form">
+        {/* 카테고리 선택 */}
+        <div className="form-group">
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="form-select"
+            disabled={isSubmitting}
+          >
+            <option value="자유게시판">자유게시판</option>
+            <option value="소모임">소모임</option>
+            <option value="펫시터">펫시터</option>
+            <option value="댕댕이 찾기">댕댕이 찾기</option>
+          </select>
+        </div>
+
+        {/* 제목 입력 */}
+        <div className="form-group">
+          <input
+            type="text"
+            name="title"
+            placeholder="제목을 입력하세요"
+            value={formData.title}
+            onChange={handleChange}
+            className="form-input"
+            disabled={isSubmitting}
+            required
+          />
+        </div>
+
+        {/* 내용 입력 */}
+        <div className="form-group">
+          <textarea
+            name="content"
+            placeholder="내용을 입력하세요"
+            value={formData.content}
+            onChange={handleChange}
+            className="form-textarea"
+            disabled={isSubmitting}
+            required
+          />
+        </div>
+
+        {/* 버튼 */}
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn-cancel"
+            onClick={() => navigate(-1)}
+            disabled={isSubmitting}
+          >
+            취소
+          </button>
+          <button type="submit" className="btn-submit" disabled={isSubmitting}>
+            {isSubmitting ? '저장 중...' : '저장하기'}
+          </button>
+        </div>
+      </form>
     </div>
-  )
+  );
 }
 
-export default CommunityWritePage
-
+export default CommunityWritePage;

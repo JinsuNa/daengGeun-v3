@@ -44,9 +44,9 @@
   margin-bottom: 1.5rem; /* 하단 여백 증가 */
 }
 
-.profile-image {
-  width: 240px; /* 이미지 크기 증가 */
-  height: 240px;
+.profile-find-image {
+  width: 240px !important; /* 이미지 크기 증가 */ 
+  height: 240px !important;
   border-radius: 50%;
   margin-bottom: 2rem; /* 하단 여백 증가 */
   border: 4px solid #f8f8f8; /* 이미지 테두리 추가 */
@@ -274,21 +274,64 @@
   background-color: #fff1f6;
 }
 
+/* 매칭된 강아지 섹션 스타일 수정 */
 .matched-dogs-modal {
-  position: absolute;
-  top: calc(100% + 0.5rem);
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.matched-dogs-container {
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  position: relative;
   overflow: hidden;
+  animation: popup-appear 0.3s ease-out;
+  border: 2px solid #e53880;
+}
+
+.matched-dogs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.matched-dogs-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e53880;
+}
+
+.matched-dogs-close {
+  background: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .matched-dogs-list {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
+  padding: 10px 0;
 }
 
 .matched-dog-item {
@@ -397,3 +440,147 @@
   }
 }
 
+/* 강아지 팝업 스타일 */
+.dog-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dog-popup {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+  animation: popup-appear 0.3s ease-out;
+  border: 2px solid #e53880;
+}
+
+@keyframes popup-appear {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dog-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.dog-popup-content {
+  display: flex;
+  padding: 20px;
+}
+
+.dog-popup-image-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  overflow: hidden;
+  border: 3px solid #fff1f6;
+  box-shadow: 0 3px 10px rgba(229, 56, 128, 0.2);
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.dog-popup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dog-popup-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dog-popup-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.dog-popup-location {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dog-popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.dog-popup-chat,
+.dog-popup-reject {
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.dog-popup-chat {
+  background-color: #e53880;
+  color: white;
+}
+
+.dog-popup-chat:hover {
+  background-color: #d32e73;
+}
+
+.dog-popup-reject {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.dog-popup-reject:hover {
+  background-color: #e8e8e8;
+}
+
+/* 매칭된 강아지 아이템에 커서 포인터 추가 */
+.matched-dog-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.matched-dog-item:hover {
+  background-color: #fff1f6;
+}

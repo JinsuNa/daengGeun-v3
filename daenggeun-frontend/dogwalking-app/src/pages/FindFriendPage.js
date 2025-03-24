@@ -1,186 +1,278 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-// 아이콘 대신 이모지 사용
-import "../styles/find-friend.css"
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "../styles/find-friend.css";
+import { createMatch, deleteMatch, fetchMatches, getRandomUsers } from "../utils/matchApi";
+import chatAPI from "../utils/chatApi";
+import { useNavigate } from "react-router-dom";
 
-function FindFriendPage({ isAuthenticated }) {
-  // 상태 관리
-  const [currentProfiles, setCurrentProfiles] = useState(null)
-  const [matchedCount, setMatchedCount] = useState(3) // 매칭된 댕댕이 수
-  const [showMatchedDogs, setShowMatchedDogs] = useState(false)
-  const [matchedDogs] = useState([
-    {
-      id: 1,
-      name: "뽀삐",
-      location: "서초구",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 2,
-      name: "해피",
-      location: "강남구",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 3,
-      name: "달리",
-      location: "마포구",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-  ])
+const BASE_URL = "http://localhost:8080/api/match";
+
+const FindFriendPage = () => {
+  const [currentProfiles, setCurrentProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showMatchedDogs, setShowMatchedDogs] = useState(false);
+  const [matchedDogs, setMatchedDogs] = useState([]);
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const navigate = useNavigate();
+
+  // 상태 관리 부분에 selectedDog 상태 추가
+  const [selectedDog, setSelectedDog] = useState(null);
+  const [showDogPopup, setShowDogPopup] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      setTimeout(() => navigate("/login"), 0);
+      return;
+    }
+  });
+
+  useEffect(() => {
+    fetchRandomUsers();
+    fetchMatchedDogs();
+  }, [userId]);
+
+  // 랜덤 강아지 가져오기
+  const fetchRandomUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await getRandomUsers();
+      setCurrentProfiles(response.data);
+    } catch (error) {
+      console.error("랜덤 사용자 가져오기 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 매칭된 강아지 리스트 가져오기
+  const fetchMatchedDogs = async () => {
+    try {
+      const response = await fetchMatches();
+      setMatchedDogs(response);
+    } catch (error) {
+      console.error("매칭된 강아지 리스트 가져오기 실패 : ", error);
+    }
+  };
 
   const handleMatchedDogsClick = () => {
-    setShowMatchedDogs(!showMatchedDogs)
-  }
+    setShowMatchedDogs(!showMatchedDogs);
+  };
 
-  const handleChat = (dogId) => {
-    // 실제 구현 시에는 채팅 페이지로 이동
-    alert(`${dogId}번 강아지와 채팅을 시작합니다.`)
-  }
+  // 강아지 상세 정보 보기 핸들러 추가
+  const handleViewDogDetails = (dog) => {
+    setSelectedDog(dog);
+    setShowDogPopup(true);
+  };
 
-  const handleReject = (dogId) => {
-    // 실제 구현 시에는 매칭 해제 API 호출
-    alert(`${dogId}번 강아지와의 매칭을 해제합니다.`)
-  }
+  // 팝업 닫기 핸들러 추가
+  const handleClosePopup = () => {
+    setShowDogPopup(false);
+  };
 
-  // 초기 데이터 로드
-  useEffect(() => {
-    // 실제 구현 시에는 API 호출로 대체
-    const dummyProfiles = [
-      {
-        id: 1,
-        name: "초코",
-        breed: "포메라니안",
-        age: 3,
-        gender: "남아",
-        personality: "활발하고 친절해요. 다른 강아지와 잘 어울립니다.",
-        location: "강남구",
-        image: "/placeholder.svg?height=300&width=300",
-      },
-      {
-        id: 2,
-        name: "콩이",
-        breed: "말티즈",
-        age: 2,
-        gender: "여아",
-        personality: "조용하고 온순해요. 천천히 친해지는 타입입니다.",
-        location: "마포구",
-        image: "/placeholder.svg?height=300&width=300",
-      },
-    ]
+  //   선택하기 버튼 클릭 시 like +1 db 저장
+  const handleSelect = async (id) => {
+    if (!id) {
+      return;
+    }
+    try {
+      await axios.post(`${BASE_URL}/like/${id}`);
+      fetchRandomUsers();
+    } catch (error) {
+      console.log("좋아요 증가 실패: ", error);
+    }
+  };
 
-    setCurrentProfiles(dummyProfiles)
-  }, [])
+  // 선택하기 버튼 클릭 시 매칭 저장
+  const handleMatch = async (receiverId) => {
+    handleSelect(receiverId);
+    try {
+      const result = await createMatch(receiverId);
+      console.log("매칭 결과:", result);
+      fetchMatchedDogs();
+    } catch (error) {
+      console.error("매칭 처리 중 오류 발생:", error);
+    }
+  };
 
-  // 선택 핸들러
-  const handleSelect = (profile) => {
-    alert(`${profile.name}를 선택하셨습니다!`)
-  }
+  const handleChat = async (dogId) => {
+    try {
+      const chatRoom = await chatAPI.createChatRoom(userId, dogId);
+      navigate(`/chat?chatRoomId=${chatRoom.id}&senderId=${userId}`);
+    } catch (error) {
+      console.error("채팅방 생성 실패: ", error);
+    }
+  };
 
-  // 둘 다 선택 안함 핸들러
-  const handleSkipBoth = () => {
-    alert("다른 친구들을 찾아볼게요!")
-  }
+  const handleDeleteChat = async (receiverId) => {
+    try {
+      // ✅ 1. senderId와 receiverId로 chatRoomId 조회
+      const response = await axios.get(
+        `http://localhost:8080/api/chat/getChatRoomId`,
+        {
+          params: { senderId: userId, receiverId },
+        }
+      );
 
-  if (!currentProfiles) {
-    return <div>로딩 중...</div>
-  }
+      if (response.status === 200 && response.data) {
+        const chatRoomId = response.data;
+        // 채팅방 삭제 API 호출
+        await chatAPI.deleteChatRoom(chatRoomId);
+      } else {
+        console.log("채팅방이 존재하지 않음");
+      }
+    } catch (error) {
+      console.error("매칭 또는 채팅방 삭제 실패:", error);
+    }
+  };
+
+  // 삭제 기능
+  const handleDeleteMatch = async (receiverId) => {
+    try {
+      await deleteMatch(receiverId); // await 사용 가능
+      alert("매칭이 삭제되었습니다.");
+      await handleDeleteChat(receiverId);
+      fetchMatchedDogs(); // 최신 매칭 목록 다시 불러오기
+    } catch (error) {
+      alert("매칭 삭제에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="find-friend-page">
       <h1 className="find-friend-title">댕근찾기</h1>
-      <p className="find-friend-description">
-        마음에 드는 산책 친구를 선택하거나, 둘 다 마음에 들지 않으면 다른 친구들을 볼 수 있어요.
-      </p>
+      <p className="find-friend-description">마음에 드는 친구를 선택하세요!</p>
 
-      <div className="profiles-container">
-        {/* 왼쪽 프로필 */}
-        <div className="profile-card">
-          <h2 className="profile-name">{currentProfiles[0].name}</h2>
-          <img
-            src={currentProfiles[0].image || "/placeholder.svg"}
-            alt={currentProfiles[0].name}
-            className="profile-image"
-          />
-          <div className="profile-details">
-            <p>견종: {currentProfiles[0].breed}</p>
-            <p>나이: {currentProfiles[0].age}살</p>
-            <p>성별: {currentProfiles[0].gender}</p>
-            <p className="profile-personality">{currentProfiles[0].personality}</p>
-            <p className="profile-location">
-              <span className="location-icon">📍</span>
-              지역: {currentProfiles[0].location}
-            </p>
+      {loading ? (
+        <p>랜덤 강아지를 불러오는 중...</p>
+      ) : (
+        <div className="profiles-container">
+          <div className="profile-card">
+            <h2>{currentProfiles[0]?.userName}</h2>
+            <img
+              src={currentProfiles[0]?.image || "/placeholder.svg"}
+              alt={currentProfiles[0]?.userName}
+              className="profile-find-image"
+            />
+            <div className="profile-details">
+              <p>견종: {currentProfiles[0]?.petBreed}</p>
+              <p>나이: {currentProfiles[0]?.petAge}살</p>
+              <p>성별: {currentProfiles[0]?.petGender}</p>
+              <p>{currentProfiles[0]?.petPersonality}</p>
+              <p>📍 {currentProfiles[0]?.location}</p>
+            </div>
+            <button
+              className="select-button"
+              onClick={() => handleMatch(currentProfiles[0]?.id)}
+            >
+              선택하기
+            </button>
           </div>
-          <button className="select-button" onClick={() => handleSelect(currentProfiles[0])}>
-            선택하기
-          </button>
-        </div>
 
-        {/* 중앙 버튼 영역 */}
-        <div className="center-buttons">
-          <button className="skip-button" onClick={handleSkipBoth}>
-            둘 다 선택 안함
-          </button>
-          <div className="matched-dogs-section">
-            <button className="matched-count-button" onClick={handleMatchedDogsClick}>
-              ↩ 매칭된 댕댕이 ({matchedCount})
+          {/* 중앙 버튼 영역 - 카드들 사이에 위치 */}
+          <div className="center-buttons">
+            <button className="skip-button" onClick={fetchRandomUsers}>
+              둘 다 선택 안함
+            </button>
+            <button
+              className="matched-count-button"
+              onClick={handleMatchedDogsClick}
+            >
+              ↩ 매칭된 댕댕이 ({matchedDogs.length})
             </button>
             {showMatchedDogs && (
-              <div className="matched-dogs-modal">
-                <div className="matched-dogs-list">
-                  {matchedDogs.map((dog) => (
-                    <div key={dog.id} className="matched-dog-item">
-                      <div className="matched-dog-info">
-                        <img src={dog.image || "/placeholder.svg"} alt={dog.name} className="matched-dog-image" />
-                        <div className="matched-dog-details">
-                          <span className="matched-dog-name">{dog.name}</span>
-                          <span className="matched-dog-location">📍 {dog.location}</span>
+              <div
+                className="matched-dogs-modal"
+                onClick={() => setShowMatchedDogs(false)}
+              >
+                <div
+                  className="matched-dogs-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="matched-dogs-header">
+                    <h3 className="matched-dogs-title">
+                      매칭된 댕댕이 ({matchedDogs.length})
+                    </h3>
+                    <button
+                      className="matched-dogs-close"
+                      onClick={() => setShowMatchedDogs(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="matched-dogs-list">
+                    {matchedDogs.map((dog) => (
+                      <div
+                        key={dog.id}
+                        className="matched-dog-item"
+                        onClick={() => handleViewDogDetails(dog)}
+                      >
+                        <div className="matched-dog-info">
+                          <img
+                            src={dog.image || "/placeholder.svg"}
+                            alt={dog.nickname}
+                            className="matched-dog-image"
+                          />
+                          <div className="matched-dog-details">
+                            <span className="matched-dog-name">
+                              {dog.nickname}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="matched-dog-actions">
+                          <button
+                            className="chat-button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleChat(dog.id);
+                            }}
+                          >
+                            채팅
+                          </button>
+                          <button
+                            className="reject-button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteMatch(dog.id);
+                            }}
+                          >
+                            거절
+                          </button>
                         </div>
                       </div>
-                      <div className="matched-dog-actions">
-                        <button className="chat-button" onClick={() => handleChat(dog.id)}>
-                          채팅
-                        </button>
-                        <button className="reject-button" onClick={() => handleReject(dog.id)}>
-                          거절
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* 오른쪽 프로필 */}
-        <div className="profile-card">
-          <h2 className="profile-name">{currentProfiles[1].name}</h2>
-          <img
-            src={currentProfiles[1].image || "/placeholder.svg"}
-            alt={currentProfiles[1].name}
-            className="profile-image"
-          />
-          <div className="profile-details">
-            <p>견종: {currentProfiles[1].breed}</p>
-            <p>나이: {currentProfiles[1].age}살</p>
-            <p>성별: {currentProfiles[1].gender}</p>
-            <p className="profile-personality">{currentProfiles[1].personality}</p>
-            <p className="profile-location">
-              <span className="location-icon">📍</span>
-              지역: {currentProfiles[1].location}
-            </p>
+          <div className="profile-card">
+            <h2>{currentProfiles[1]?.userName}</h2>
+            <img
+              src={currentProfiles[1]?.image || "/placeholder.svg"}
+              alt={currentProfiles[1]?.userName}
+              className="profile-find-image"
+            />
+            <div className="profile-details">
+              <p>견종: {currentProfiles[1]?.petBreed}</p>
+              <p>나이: {currentProfiles[1]?.petAge}살</p>
+              <p>성별: {currentProfiles[1]?.petGender}</p>
+              <p>{currentProfiles[1]?.petPersonality}</p>
+              <p>📍 {currentProfiles[1]?.location}</p>
+            </div>
+            <button
+              className="select-button"
+              onClick={() => handleMatch(currentProfiles[1]?.id)}
+            >
+              선택하기
+            </button>
           </div>
-          <button className="select-button" onClick={() => handleSelect(currentProfiles[1])}>
-            선택하기
-          </button>
         </div>
-      </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default FindFriendPage
-
+export default FindFriendPage;
