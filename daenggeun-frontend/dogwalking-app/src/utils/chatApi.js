@@ -22,6 +22,8 @@ const chatAPI = {
     // 특정 채팅방의 모든 메시지 조회
     getChatMessages: async (chatRoomId) => {
         const response = await axios.get(`${API_BASE_URL}/messages/${chatRoomId}`);
+        console.log(response.data);
+        
         return response.data;
     },
 

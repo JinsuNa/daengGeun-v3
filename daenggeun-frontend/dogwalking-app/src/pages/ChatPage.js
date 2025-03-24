@@ -3,16 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
-import { Client } from "@stomp/stompjs"; // ✅ STOMP 클라이언트 추가
+import { Client } from "@stomp/stompjs";
 import "../styles/Chat.css";
 import chatAPI from "../utils/chatApi";
 
 function ChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const messagesEndRef = useRef(null);
 
-  // URL 쿼리에서 채팅방 ID 및 사용자 ID 가져오기
   const queryParams = new URLSearchParams(location.search);
   const chatRoomId = queryParams.get("chatRoomId");
   const senderId = queryParams.get("senderId");
@@ -21,44 +19,45 @@ function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [stompClient, setStompClient] = useState(null);
 
+  const chatContentRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const [isAutoScroll, setIsAutoScroll] = useState(true); // ✅ 스크롤 여부 상태 추가
+
+  // ✅ 메시지 불러오기 (REST)
   useEffect(() => {
     if (!chatRoomId) return;
 
     const fetchMessages = async () => {
       try {
         const chatMessages = await chatAPI.getChatMessages(chatRoomId);
+
         setMessages(chatMessages);
+        setIsAutoScroll(true); // ✅ 초기 로딩 시 자동 스크롤
       } catch (error) {
         console.error("기존 메세지 불러오기 실패:", error);
       }
     };
-    fetchMessages(); // 초기 1회 호출
 
-    const intervalId = setInterval(fetchMessages, 1000); // 3초마다 새 메시지 확인
+    fetchMessages();
 
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 정리
+    const intervalId = setInterval(fetchMessages, 1000);
+    return () => clearInterval(intervalId);
   }, [chatRoomId]);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-  
-  // ✅ WebSocket 연결 설정
+  // ✅ WebSocket 연결
   useEffect(() => {
     if (!chatRoomId) return;
 
     const client = new Client({
-      brokerURL: "ws://localhost:8080/ws-chat", // WebSocket 서버 주소
-      reconnectDelay: 5000, // 자동 재연결 활성화
+      brokerURL: "ws://localhost:8080/ws-chat",
+      reconnectDelay: 5000,
       onConnect: () => {
         console.log("✅ WebSocket 연결 성공");
 
-        // ✅ 특정 채팅방을 구독하여 메시지 받기
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const receivedMessage = JSON.parse(message.body);
           setMessages((prev) => [...prev, receivedMessage]);
+          setIsAutoScroll(true); // ✅ 새 메시지 수신 시 스크롤 활성화
         });
       },
       onStompError: (error) => {
@@ -66,15 +65,26 @@ function ChatPage() {
       },
     });
 
-    client.activate(); // WebSocket 연결 활성화
+    client.activate();
     setStompClient(client);
 
     return () => {
-      client.deactivate(); // 컴포넌트 언마운트 시 연결 해제
+      client.deactivate();
     };
   }, [chatRoomId]);
 
-  // ✅ 메시지 전송 핸들러
+  // ✅ 스크롤 처리
+  useEffect(() => {
+    if (isAutoScroll && chatContentRef.current) {
+      chatContentRef.current.scrollTo({
+        top: chatContentRef.current.scrollHeight,
+        behavior: "smooth", // ✅ 여기!
+      });
+      setIsAutoScroll(false); // 한 번만 스크롤 작동
+    }
+  }, [messages]);
+
+  // ✅ 메시지 전송
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -86,14 +96,14 @@ function ChatPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // ✅ WebSocket으로 메시지 전송
     if (stompClient && stompClient.connected) {
       stompClient.publish({
         destination: "/app/chat.sendMessage",
         body: JSON.stringify(messageData),
       });
 
-      setNewMessage(""); // 입력 필드 초기화
+      setNewMessage("");
+      setIsAutoScroll(true); // ✅ 내가 메시지 보냈을 때도 스크롤
     } else {
       console.error("❌ WebSocket 연결이 안 되어 있음.");
     }
@@ -101,10 +111,11 @@ function ChatPage() {
 
   return (
     <div className="chat-page">
+      <p></p>
       <div className="chat-container">
         <div className="chat-card">
           {/* 채팅 내용 */}
-          <div className="chat-content">
+          <div className="chat-content" ref={chatContentRef}>
             {messages.map((message, index) => (
               <div
                 key={index}
