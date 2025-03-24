@@ -21,15 +21,14 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostLikeRepository postLikeRepository; // ✅ 추가
+    private final PostLikeRepository postLikeRepository; // 추가
 
-    // 전체 게시글 조회
+    // 전체 게시글 최신순 정렬
     public List<PostDTO> getAllPosts() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
     }
-
     // 게시글 상세 조회 + 조회수 증가
     public PostDTO getPostById(Long id) {
         Post post = postRepository.findById(id)
@@ -85,14 +84,14 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    // 카테고리별 게시글 조회
+    // 카테고리별 게시글 최신순 정렬
     public List<PostDTO> getPostsByCategory(String category) {
-        return postRepository.findByCategory(category).stream()
+        return postRepository.findByCategoryOrderByCreatedAtDesc(category).stream()
                 .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    // ✅ 좋아요 토글 메서드 추가
+    // 좋아요 토글 메서드 추가
     @Transactional
     public boolean toggleLike(Long postId, Long userId) {
         User user = userRepository.findById(userId)

@@ -1,11 +1,8 @@
 package com.project.daeng_geun.security;
 
-import com.project.daeng_geun.service.ChatService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration

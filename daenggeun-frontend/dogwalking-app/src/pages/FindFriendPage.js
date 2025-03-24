@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/find-friend.css";
-import { createMatch, deleteMatch, fetchMatches } from "../utils/matchApi";
+import { createMatch, deleteMatch, fetchMatches, getRandomUsers } from "../utils/matchApi";
 import chatAPI from "../utils/chatApi";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +37,7 @@ const FindFriendPage = () => {
   const fetchRandomUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/random`);
+      const response = await getRandomUsers();
       setCurrentProfiles(response.data);
     } catch (error) {
       console.error("랜덤 사용자 가져오기 실패:", error);

@@ -19,6 +19,7 @@ import ExhibitionPage from './pages/ExhibitionPage';
 import MyPage from './pages/MyPage';
 
 import './styles/App.css';
+import EditMarketItemPage from './pages/EditProductPage';
 
 function App() {
   const navigate = useNavigate();
@@ -78,20 +79,21 @@ function App() {
           <Route path="/community/post/:id" element={<CommunityDetailPage />} />{' '}
           {/* ✅ 상세페이지 추가 */}
           {/* 마켓 */}
-          <Route path="/market" element={<MarketPage />} />
-          <Route path="/market/:id" element={<MarketItemPage />} />
           <Route
             path="/market/write"
             element={<MarketWritePage isAuthenticated={isAuthenticated} />}
           />
+          <Route
+            path="/market/write"
+            element={<MarketWritePage isAuthenticated={isAuthenticated} />}
+          />
+          <Route path="/market/edit/:id" element={<EditMarketItemPage />} />
+          <Route path="/market/:id" element={<MarketItemPage />} />
+          <Route path="/market" element={<MarketPage />} />
           {/* 채팅/캘린더/전시 */}
           <Route
             path="/chat"
             element={<ChatPage isAuthenticated={isAuthenticated} />}
-          />
-          <Route
-            path="/calendar"
-            element={<CalendarPage isAuthenticated={isAuthenticated} />}
           />
           <Route path="/exhibition" element={<ExhibitionPage />} />
           {/* 마이페이지 */}

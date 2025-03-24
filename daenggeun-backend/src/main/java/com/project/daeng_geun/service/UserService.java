@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class UserService {
     private final S3Service s3Service;
 
     //    회원가입
-    public ResponseEntity<Map<String, Object>> register(UserDTO userDTO, MultipartFile image) {
+    public ResponseEntity<Map<String, Object>> register(UserDTO userDTO, MultipartFile image) throws IOException {
         Map<String, Object> response = new HashMap<>();
 
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
@@ -35,11 +36,11 @@ public class UserService {
 
         String imageUrl = (image != null) ? s3Service.uploadFile(image) : null;
 
-        // 🔹 사용자 저장
+        // 사용자 저장
         User user = User.builder()
                 .email(userDTO.getEmail())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
-                .nickname(userDTO.getUsername())
+                .nickname(userDTO.getNickname())
                 .address(userDTO.getAddress())
                 .location(userDTO.getLocation())
                 .petName(userDTO.getPetName())
@@ -53,7 +54,7 @@ public class UserService {
         userRepository.save(user);
 
 
-        // 🔹 JSON 형식으로 응답 생성
+        // JSON 형식으로 응답 생성
         response.put("success", true);
         response.put("message", "회원가입 성공!");
         response.put("user", user);

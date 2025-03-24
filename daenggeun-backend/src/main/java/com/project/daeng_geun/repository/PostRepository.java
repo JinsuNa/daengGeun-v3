@@ -7,8 +7,13 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    // 카테고리별 게시글 조회
+    // 카테고리별 게시글 조회 (기존)
     List<Post> findByCategory(String category);
 
+    // 전체 게시글 최신순 정렬
+    List<Post> findAllByOrderByCreatedAtDesc();
+
+    // 카테고리별 게시글 최신순 정렬
+    List<Post> findByCategoryOrderByCreatedAtDesc(String category);
 
 }

@@ -32,15 +32,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // ✅ CSRF 보호 비활성화 (프론트엔드 연동)
+                .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (프론트엔드 연동)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ CORS 활성화
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 회원가입 & 로그인 API는 인증 없이 허용
+                        // 회원가입 & 로그인 API는 인증 없이 허용
                         .requestMatchers("/api/user/register", "/api/user/login","/**").permitAll()
                         .requestMatchers("/ws-chat/**").permitAll()
-                        // ✅ 인증이 필요한 API
+                        // 인증이 필요한 API
                         .requestMatchers("/api/**").authenticated()
                 )
+
                 .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS)) // ✅ JWT 기반이므로 세션 사용 안 함
                 .formLogin(form -> form.disable()); // ❌ Spring 기본 로그인 폼 비활성화
 //                .httpBasic(httpBasic -> httpBasic.disable()); // ❌ Basic Auth 비활성화 (JWT 사용)
@@ -48,7 +49,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ CORS 설정 추가
+    // CORS 설정 추가
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

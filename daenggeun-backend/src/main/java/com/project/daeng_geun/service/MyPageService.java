@@ -17,7 +17,7 @@ public class MyPageService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ 내 프로필 조회
+    // 내 프로필 조회
     @Transactional(readOnly = true)
     public UserDTO getMyProfile(Long userId) {
         User user = userRepository.findById(userId)
@@ -25,7 +25,7 @@ public class MyPageService {
         return UserDTO.fromEntity(user);
     }
 
-    // ✅ 마이페이지 정보 업데이트
+    // 마이페이지 정보 업데이트
     @Transactional
     public UserDTO updateMyProfile(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id)
@@ -36,7 +36,7 @@ public class MyPageService {
         return UserDTO.fromEntity(user);
     }
 
-    // ✅ 반려견 정보 업데이트
+    // 반려견 정보 업데이트
     @Transactional
     public UserDTO updatePetInfo(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id)
@@ -47,13 +47,13 @@ public class MyPageService {
         return UserDTO.fromEntity(user);
     }
 
-    // 🔹 사용자 정보 업데이트 (null 값 체크)
+    // 사용자 정보 업데이트 (null 값 체크)
     private void updateUserFields(User user, UserDTO userDTO) {
-        if (userDTO.getUsername() != null) user.setNickname(userDTO.getUsername());
+        if (userDTO.getNickname() != null) user.setNickname(userDTO.getNickname());
         if (userDTO.getImage() != null) user.setImage(userDTO.getImage());
     }
 
-    // 🔹 반려견 정보 업데이트 (null 값 체크)
+    // 반려견 정보 업데이트 (null 값 체크)
     private void updatePetFields(User user, UserDTO userDTO) {
         if (userDTO.getPetName() != null) user.setPetName(userDTO.getPetName());
         if (userDTO.getPetBreed() != null) user.setPetBreed(userDTO.getPetBreed());

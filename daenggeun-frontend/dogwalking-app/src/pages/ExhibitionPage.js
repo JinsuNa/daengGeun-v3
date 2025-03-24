@@ -116,21 +116,21 @@ function ExhibitionPage() {
   // 박람회 카드 컴포넌트
   const ExhibitionCard = ({ exhibition }) => {
     return (
-      <div className="card">
+      <div className="exhibition-card">
         <div className="exhibition-image-container">
           <img src={exhibition.image || "/placeholder.svg"} alt={exhibition.title} className="exhibition-image" />
           <span className={`badge ${exhibition.status === "current" ? "badge-primary" : "badge-secondary"}`}>
             {exhibition.status === "current" ? "진행 중" : "예정"}
           </span>
         </div>
-        <div className="card-header">
-          <h2 className="card-title">{exhibition.title}</h2>
-          <p className="card-meta">
+        <div className="exhibition-card-header">
+          <h2 className="exhibition-card-title">{exhibition.title}</h2>
+          <p className="exhibition-card-meta">
             {exhibition.startDate} ~ {exhibition.endDate}
           </p>
         </div>
-        <div className="card-content">
-          <p className="card-description">{exhibition.description}</p>
+        <div className="exhibition-card-content">
+          <p className="exhibition-card-description">{exhibition.description}</p>
           <div className="exhibition-meta">
             <div className="exhibition-location">
               <span className="exhibition-location-icon">📍</span>
@@ -145,7 +145,7 @@ function ExhibitionPage() {
             ))}
           </div>
         </div>
-        <div className="card-footer">
+        <div className="exhibition-card-footer">
           <button className="btn btn-primary"><a href={exhibition.url}>자세히 보기</a> </button>
         </div>
       </div>
@@ -179,7 +179,7 @@ function ExhibitionPage() {
           {isLoading ? (
             <div className="loading">로딩 중...</div>
           ) : currentExhibitions.length > 0 ? (
-            <div className="card-grid">
+            <div className="exhibition-card-grid">
               {currentExhibitions.map((exhibition) => (
                 <ExhibitionCard key={exhibition.id} exhibition={exhibition} />
               ))}
@@ -195,7 +195,7 @@ function ExhibitionPage() {
           {isLoading ? (
             <div className="loading">로딩 중...</div>
           ) : upcomingExhibitions.length > 0 ? (
-            <div className="card-grid">
+            <div className="exhibition-card-grid">
               {upcomingExhibitions.map((exhibition) => (
                 <ExhibitionCard key={exhibition.id} exhibition={exhibition} />
               ))}

@@ -25,8 +25,8 @@ public class PostDTO {
                 .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .writer(post.getUser().getNickname())   // ✅ 작성자 닉네임 세팅!
-                .createdAt(post.getCreatedAt())         // ✅ 작성일 세팅!
+                .writer(post.getUser().getNickname())   // 작성자 닉네임 세팅!
+                .createdAt(post.getCreatedAt())         // 작성일 세팅!
                 .category(post.getCategory())
                 .viewCount(post.getViewCount())      //
                 .commentCount(post.getComments() != null ? post.getComments().size() : 0) // 댓글 리스트 개수 반환
