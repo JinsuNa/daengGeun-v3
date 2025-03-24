@@ -12,6 +12,7 @@ public class ChatRoomResponseDTO {
     private Long id;
     private Long senderId;
     private Long receiverId;
+    private String receiverNickname;
 
 
     public ChatRoomResponseDTO(ChatRoom chatRoom) {
