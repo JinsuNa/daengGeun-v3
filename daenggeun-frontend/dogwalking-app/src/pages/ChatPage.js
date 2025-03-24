@@ -32,8 +32,19 @@ function ChatPage() {
         console.error("기존 메세지 불러오기 실패:", error);
       }
     };
-    fetchMessages();
+    fetchMessages(); // 초기 1회 호출
+
+    const intervalId = setInterval(fetchMessages, 1000); // 3초마다 새 메시지 확인
+
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 정리
   }, [chatRoomId]);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+  
   // ✅ WebSocket 연결 설정
   useEffect(() => {
     if (!chatRoomId) return;
