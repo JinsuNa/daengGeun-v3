@@ -1,0 +1,99 @@
+// 사용자 테이블
+Table users {
+  id bigint [pk, increment]
+  email varchar [not null, unique]
+  password varchar [not null]
+  nickname varchar [not null]
+  address varchar
+  location varchar
+  likeCount bigint
+  petName varchar [not null]
+  petBreed varchar [not null]
+  petAge int
+  petGender varchar
+  petPersonality varchar(500)
+  image varchar
+  username varchar [not null, unique]
+  createdAt timestamp [not null]
+  updatedAt timestamp
+}
+
+// 게시글 테이블
+Table posts {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  title varchar [not null]
+  content varchar(5000) [not null]
+  category varchar
+  viewCount int
+  likeCount int
+  createdAt timestamp [not null]
+  updatedAt timestamp
+}
+
+// 댓글 테이블
+Table comments {
+  id bigint [pk, increment]
+  post_id bigint [ref: > posts.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  content varchar(1000) [not null]
+  createdAt timestamp [not null]
+  updatedAt timestamp
+}
+
+// 상품 테이블
+Table products {
+  id bigint [pk, increment]
+  seller_id bigint [ref: > users.id, not null]
+  title varchar [not null]
+  price int [not null]
+  description varchar(2000) [not null]
+  location varchar
+  image varchar
+  views int
+  lastViewedTime bigint
+  createdAt timestamp [not null]
+  updatedAt timestamp [not null]
+}
+
+// 상품 댓글 테이블
+Table market_comments {
+  id bigint [pk, increment]
+  product_id bigint [ref: > products.id, not null]
+  user_id bigint [ref: > users.id, not null]
+  content varchar(1000) [not null]
+  createdAt timestamp [not null]
+  updatedAt timestamp
+}
+
+// 게시글 좋아요 테이블
+Table post_likes {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, not null]
+  post_id bigint [ref: > posts.id, not null]
+}
+
+// 매치 테이블
+Table matches {
+  id bigint [pk, increment]
+  sender_id bigint [ref: > users.id, not null]
+  receiver_id bigint [ref: > users.id, not null]
+  status varchar [not null]
+  createdAt timestamp [not null]
+}
+
+// 채팅방 테이블
+Table chat_rooms {
+  id bigint [pk, increment]
+  sender_id bigint [ref: > users.id, not null]
+  receiver_id bigint [ref: > users.id, not null]
+}
+
+// 채팅 메시지 테이블
+Table chat_messages {
+  id bigint [pk, increment]
+  chat_room_id bigint [ref: > chat_rooms.id, not null]
+  sender_id bigint [ref: > users.id, not null]
+  message varchar [not null]
+  createdAt timestamp
+}
