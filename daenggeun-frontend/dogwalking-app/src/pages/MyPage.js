@@ -44,13 +44,15 @@ function MyPage() {
       .then((response) => {
         setUser(response.data);
         setFormData({
-          nickname: response.data.nickname || "",
+          nickname: response.data.username || "",
           petName: response.data.petName || "",
           petBreed: response.data.petBreed || "",
           petAge: response.data.petAge || "",
           petGender: response.data.petGender || "",
           petPersonality: response.data.petPersonality || "",
         });
+        console.log(response.data);
+        
         if (response.data.image) {
           setImagePreview(response.data.image);
         }
@@ -165,7 +167,7 @@ function MyPage() {
       <div className="mypage-content">
         {/* 🌟 프로필 정보 */}
         <div className="card profile-section">
-          <h2 className="card-title">👤 프로필</h2>
+          <h2 className="card-title">프로필</h2>
           <div className="profile-content">
             <div className="profile-image-container">
               <img
@@ -199,7 +201,7 @@ function MyPage() {
 
         {/* 🌟 반려견 정보 */}
         <div className="card pet-section">
-          <h2 className="card-title">🐶 반려견 정보</h2>
+          <h2 className="card-title">반려견 정보</h2>
           <label>이름</label>
           <input
             type="text"

@@ -1146,6 +1146,7 @@
 
 .btn-cancel {
   padding: 0.5rem 1rem;
+  width: 30% !important;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
   background-color: #fff;
@@ -1156,14 +1157,16 @@
 }
 
 .btn-submit {
+  width: 70%;
   padding: 0.5rem 1rem;
-  border: none;
+  border: 1px solid;
   border-radius: 4px;
   background-color: #e53880;
   color: #fff;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-top: 10px;
 }
 
 .btn-cancel:hover {

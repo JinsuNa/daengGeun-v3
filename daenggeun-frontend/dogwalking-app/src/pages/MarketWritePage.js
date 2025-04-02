@@ -74,11 +74,11 @@ function MarketWritePage() {
         }
       );
 
-      console.log("✅ 상품 등록 성공:", response.data);
+      console.log("상품 등록 성공:", response.data);
       alert("상품이 성공적으로 등록되었습니다!");
-      navigate("/market"); // ✅ 등록 후 /market 페이지로 이동
+      navigate("/market"); // 등록 후 /market 페이지로 이동
     } catch (error) {
-      console.error("❌ 상품 등록 실패:", error.response?.data || error);
+      console.error("상품 등록 실패:", error.response?.data || error);
       setError("상품 등록 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false); // ✅ 등록 완료 후 상태 복구
@@ -90,7 +90,7 @@ function MarketWritePage() {
       {/* ✅ 헤더 */}
       <div className="writeImage">
         <img src="/favicon.svg" alt="상품 등록 아이콘" />
-        <h2 className="write-title">📦 상품 등록</h2>
+        <h2 className="write-title">상품 등록</h2>
       </div>
   
       {error && <p className="form-error">{error}</p>}
@@ -98,7 +98,7 @@ function MarketWritePage() {
       <form className="write-form" onSubmit={handleSubmit}>
         {/* ✅ 제목 입력 */}
         <div className="form-group">
-          <label className="form-label">📌 제목</label>
+          <label className="form-label">제목</label>
           <input
             type="text"
             name="title"
@@ -112,7 +112,7 @@ function MarketWritePage() {
   
         {/* ✅ 가격 입력 */}
         <div className="form-group">
-          <label className="form-label">💰 가격</label>
+          <label className="form-label">가격</label>
           <input
             type="number"
             name="price"
@@ -126,7 +126,7 @@ function MarketWritePage() {
   
         {/* ✅ 설명 입력 */}
         <div className="form-group">
-          <label className="form-label">📝 설명</label>
+          <label className="form-label">설명</label>
           <textarea
             name="description"
             value={formData.description}
@@ -139,7 +139,7 @@ function MarketWritePage() {
   
         {/* ✅ 이미지 업로드 */}
         <div className="form-group">
-          <label className="form-label">🖼️ 이미지 업로드 (최대 5개)</label>
+          <label className="form-label">이미지 업로드 (최대 5개)</label>
           <input
             type="file"
             multiple
@@ -166,13 +166,7 @@ function MarketWritePage() {
   
         {/* ✅ 버튼 영역 */}
         <div className="form-actions">
-          <button
-            type="submit"
-            className="btn-submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "등록 중..." : "상품 등록"}
-          </button>
+   
           <button
             type="button"
             className="btn-cancel"
@@ -180,6 +174,13 @@ function MarketWritePage() {
             disabled={isSubmitting}
           >
             취소
+          </button>
+          <button
+            type="submit"
+            className="btn-submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "등록 중..." : "상품 등록"}
           </button>
         </div>
       </form>

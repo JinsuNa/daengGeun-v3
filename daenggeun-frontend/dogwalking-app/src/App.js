@@ -82,10 +82,6 @@ function App() {
             path="/market/write"
             element={<MarketWritePage isAuthenticated={isAuthenticated} />}
           />
-          <Route
-            path="/market/write"
-            element={<MarketWritePage isAuthenticated={isAuthenticated} />}
-          />
           <Route path="/market/edit/:id" element={<EditMarketItemPage />} />
           <Route path="/market/:id" element={<MarketItemPage />} />
           <Route path="/market" element={<MarketPage />} />
