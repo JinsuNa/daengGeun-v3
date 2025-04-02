@@ -1,5 +1,6 @@
 package com.project.daeng_geun.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.daeng_geun.entity.User;
 import lombok.*;
 
@@ -11,19 +12,34 @@ import lombok.*;
 
 public class UserDTO {
     private Long id;
+
     private String email;
+
     private String password;
+
     private String repeatPassword;
+
+    @JsonProperty("username")
     private String nickname;
+
     private String phone;
+
     private String address;
+
     private String location;
+
     private String petName;
+
     private String petBreed;
+
     private Integer petAge;
+
     private String petGender;
+
     private String petPersonality;
+
     private String image;
+
     private String profileImage;
 
     public static UserDTO fromEntity(User user) {

@@ -9,12 +9,11 @@ import RegisterPage from './pages/RegisterPage';
 import FindFriendPage from './pages/FindFriendPage';
 import CommunityPage from './pages/CommunityPage';
 import CommunityWritePage from './pages/CommunityWritePage';
-import CommunityDetailPage from './pages/CommunityDetailPage'; // ✅ 상세페이지 추가!!
+import CommunityDetailPage from './pages/CommunityDetailPage'; //
 import MarketPage from './pages/MarketPage';
 import MarketItemPage from './pages/MarketItemPage';
 import MarketWritePage from './pages/MarketWritePage';
 import ChatPage from './pages/ChatPage';
-import CalendarPage from './pages/CalendarPage';
 import ExhibitionPage from './pages/ExhibitionPage';
 import MyPage from './pages/MyPage';
 

@@ -39,7 +39,7 @@ public class ProductDTO {
                 .updatedAt(product.getUpdatedAt())
                 .views(product.getViews())
                 .sellerId(product.getSeller().getId())
-                .sellerName(product.getSeller().getUsername())
+                .sellerName(product.getSeller().getNickname())
                 .sellerNickname(product.getSeller().getNickname()) // User 엔티티에서 닉네임 가져오기
                 .sellerImage(product.getSeller().getImage()) // User 엔티티에서 프로필 이미지 가져오기
                 .location(product.getLocation())  // 사용자 위치 추가
