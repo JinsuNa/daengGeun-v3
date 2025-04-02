@@ -49,6 +49,18 @@ function RegisterPage({ onLogin }) {
   const [isLoading, setIsLoading] = useState(false);
   const [registerError, setRegisterError] = useState("");
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [preview, setPreview] = useState("");
+
+  useEffect(() => {
+    if (!image) {
+      setPreview("");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(image);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl); // 정리
+  }, [image]);
 
   const [formValidation, setFormValidation] = useState({
     username: {
@@ -80,7 +92,7 @@ function RegisterPage({ onLogin }) {
     setRegisterError("");
   }
 
-  // ✅ 폼 제출 핸들러 (Spring Boot API 연동)
+  // 폼 제출 핸들러 (Spring Boot API 연동)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -528,9 +540,9 @@ function RegisterPage({ onLogin }) {
                   </label>
                   <div className="profile-upload">
                     <div className="profile-image-preview">
-                      {formData.image ? (
+                      {image ? (
                         <img
-                          src={formData.image || "/placeholder.svg"}
+                          src={preview}
                           alt="프로필 미리보기"
                           className="profile-image"
                         />

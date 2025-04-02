@@ -21,32 +21,21 @@ const FindFriendPage = () => {
   const [selectedDog, setSelectedDog] = useState(null);
   const [showDogPopup, setShowDogPopup] = useState(false);
 
-  useEffect(() => {
-    if (!userId) {
-      setTimeout(() => navigate("/login"), 0);
-      return;
-    }
-  });
 
-  useEffect(() => {
-    fetchRandomUsers();
-    fetchMatchedDogs();
-  }, [userId]);
+    // 랜덤 강아지 가져오기
+    const fetchRandomUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await getRandomUsers();
+        setCurrentProfiles(response.data);
+      } catch (error) {
+        console.error("랜덤 사용자 가져오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // 랜덤 강아지 가져오기
-  const fetchRandomUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await getRandomUsers();
-      setCurrentProfiles(response.data);
-    } catch (error) {
-      console.error("랜덤 사용자 가져오기 실패:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 매칭된 강아지 리스트 가져오기
+      // 매칭된 강아지 리스트 가져오기
   const fetchMatchedDogs = async () => {
     try {
       const response = await fetchMatches();
@@ -55,6 +44,20 @@ const FindFriendPage = () => {
       console.error("매칭된 강아지 리스트 가져오기 실패 : ", error);
     }
   };
+
+  
+    useEffect(() => {
+      fetchRandomUsers();
+      fetchMatchedDogs();
+    }, [userId]);
+  if (!userId) {
+    navigate("/login");
+    return null; // 이건 컴포넌트 전체에서 렌더링 자체를 막는 용도
+  }
+
+
+
+
 
   const handleMatchedDogsClick = () => {
     setShowMatchedDogs(!showMatchedDogs);
